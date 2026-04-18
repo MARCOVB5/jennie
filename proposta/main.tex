@@ -77,11 +77,11 @@
 
 % --- SEÇÃO: INTRODUÇÃO ---  
 \section{Introdução}  
-Atualmente, os serviços convencionais de armazenamento em nuvem (\textit{cloud storage}) apresentam desafios significativos no que diz respeito à privacidade dos dados, limitação de controle por parte do usuário e ineficiência energética \cite{zissis2012}. Para mitigar esses problemas, o mercado oferece soluções de \textit{Network Attached Storage} (NAS) voltadas para o consumidor final, permitindo a hospedagem de dados na própria residência. 
+Atualmente, os serviços convencionais de armazenamento em nuvem (\textit{cloud storage}) apresentam desafios significativos no que diz respeito à privacidade dos dados, limitação de controle por parte do usuário e ineficiência energética \cite{zissis2012}. Para mitigar esses problemas, o mercado oferece soluções de \textit{Network Attached Storage} --- NAS voltadas para o consumidor final, permitindo a hospedagem de dados na própria residência. 
 
 Contudo, essas soluções comerciais frequentemente se baseiam em hardware e software proprietários, o que caracteriza um modelo de "caixa preta" (\textit{vendor lock-in}) \cite{shapiro1999}. Além de restringir a verdadeira privacidade e o controle absoluto do sistema, os produtos de NAS tradicionais possuem um custo de aquisição elevado e um consumo de energia considerável para operações contínuas \cite{berl2010}.
 
-Diante desse cenário de problemas em cascata, este projeto propõe o desenvolvimento de um servidor NAS eficiente, transparente e acessível, fundamentado em uma placa \textit{Raspberry Pi 5} \cite{upton2014}. A arquitetura funcionará sob um sistema operacional customizado de código livre e aberto, garantindo total transparência e otimização de recursos. Adicionalmente, o projeto engloba a construção de módulos eletrônicos dedicados, incluindo um sistema de alimentação ininterrupta (no-break) e controle de refrigeração ativa, assegurando a estabilidade e a integridade do hardware.
+Diante desse cenário de problemas em cascata, este projeto propõe o desenvolvimento de um servidor NAS eficiente, transparente e acessível, fundamentado em uma placa \textit{Raspberry Pi 5} \cite{upton2014}. A arquitetura funcionará sob um sistema operacional customizado de código livre e aberto, garantindo total transparência e otimização de recursos. Adicionalmente, o projeto engloba a construção de módulos eletrônicos dedicados, incluindo um no-break (\textit{Uninterruptible Power Supply} --- UPS) e controle de refrigeração ativa, assegurando a estabilidade e a integridade do hardware.
 
 
 \begin{figure}[htbp]
@@ -107,11 +107,11 @@ Diante desse cenário de problemas em cascata, este projeto propõe o desenvolvi
 
  %--- SEÇÃO: DESCRIÇÃO GERAL ---  
 \section{Descrição Geral}  
-O projeto consiste em um sistema de armazenamento estruturado em três componentes principais: hardware de processamento (Raspberry Pi 5), módulos eletrônicos de suporte e um ecossistema de software customizado. A Raspberry Pi atua como o núcleo do sistema, interligando o arranjo de discos rígidos através de barramentos de alta velocidade (PCIe\footnote{\textit{Peripheral Component Interconnect Express}: barramento serial de alta velocidade para conexão de periféricos internos.}). Para viabilizar a operação 24/7 de maneira confiável, um circuito \textit{no-break} incorpora o gerenciamento de baterias e circuitos lógicos para acionamento das ventoinhas conforme a demanda térmica do processador e dos discos. \\
+O projeto consiste em um sistema de armazenamento estruturado em três componentes principais: hardware de processamento (Raspberry Pi 5), módulos eletrônicos de suporte e um ecossistema de software customizado. A Raspberry Pi atua como o núcleo do sistema, interligando o arranjo de discos rígidos através de barramentos de alta velocidade (\textit{Peripheral Component Interconnect Express} --- PCIe). Para viabilizar a operação 24/7 de maneira confiável, um circuito \textit{no-break} incorpora o gerenciamento de baterias e circuitos lógicos para acionamento das ventoinhas conforme a demanda térmica do processador e dos discos. \\
 Do ponto de vista funcional, o sistema provê ao usuário uma plataforma centralizada para:
 \begin{itemize}
 \item \textbf{Gestão de Dados e Soberania Digital:} Armazenamento, organização e exploração de arquivos via rede local ou remota, utilizando protocolos seguros e interface web dedicada.
-\item \textbf{Orquestração de Microserviços:} Capacidade de hospedar e gerenciar aplicações isoladas (contêineres), como automações residenciais, bots de monitoramento e websites.
+\item \textbf{Orquestração de Microserviços:} Capacidade de hospedar e gerenciar aplicações isoladas (contêineres — ambientes de execução isolados por software), como automações residenciais, bots de monitoramento e websites.
 \item \textbf{Resiliência Operacional:} Garantia de disponibilidade através de um sistema de UPS (no-break) integrado, que monitora a rede elétrica e assegura o funcionamento contínuo ou o desligamento seguro em caso de falhas.
 \end{itemize}
 
@@ -129,7 +129,7 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 
 \subsection{Requisitos Funcionais (RF)}
 \begin{itemize}
-    \item \textbf{RF01 - Gerenciamento de Armazenamento:} O sistema deve ser capaz de reconhecer, formatar e gerenciar um arranjo de até 4 discos rígidos (HDDs) de 2.5". A escolha exclusiva por HDDs justifica-se pelo foco do projeto em alta densidade de armazenamento e soberania de dados com baixo custo de aquisição \cite{berl2010}. Visto que o gargalo de desempenho para o uso doméstico reside na interface de rede e no barramento PCIe-to-SATA\footnote{\textit{Serial ATA}: interface padrão de comunicação entre placa-mãe e dispositivos de armazenamento.} compartilhado \cite{halfacree2023}, o uso de SSDs elevaria o custo total sem proporcionar ganho perceptível em aplicações de \textit{cold storage} e servidores de mídia.
+    \item \textbf{RF01 - Gerenciamento de Armazenamento:} O sistema deve ser capaz de reconhecer, formatar e gerenciar um arranjo de até 4 discos rígidos (HDDs) de 2.5". A escolha exclusiva por HDDs justifica-se pelo foco do projeto em alta densidade de armazenamento e soberania de dados com baixo custo de aquisição \cite{berl2010}. Visto que o gargalo de desempenho para o uso doméstico reside na interface de rede e no barramento PCIe-to-SATA (\textit{Serial ATA}) compartilhado \cite{halfacree2023}, o uso de SSDs elevaria o custo total sem proporcionar ganho perceptível em aplicações de \textit{cold storage} (dados raramente acessados, priorizando baixo custo por GB) e servidores de mídia.
     \item \textbf{RF02 - Compartilhamento de Rede:} O sistema deve prover o acesso aos arquivos através da rede local (ou externa), permitindo leitura e escrita por diferentes dispositivos de forma segura.
     \item \textbf{RF03 - Controle de Acesso e Usuários:} O sistema deve permitir a criação de múltiplos usuários, gerenciando diferentes níveis de permissão de acesso a diretórios específicos.
     \item \textbf{RF04 - Segurança Física do Sistema:} O NAS deve incorporar mecanismos eletrônicos (no-break e controle térmico) que garantam a consistência da operação contra quedas de energia e sobreaquecimento.
@@ -142,14 +142,14 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 
 \subsection{Requisitos Não-Funcionais (RNF)}
 \begin{itemize}
-    \item \textbf{RNF01 - Desempenho e Eficiência:} O sistema operacional deve ser enxuto e otimizado para a arquitetura ARM\footnote{\textit{Advanced RISC Machine}: arquitetura de processadores de baixo consumo, amplamente usada em dispositivos embarcados e móveis.} embarcada, com baixo consumo de recursos e priorização da alocação de memória para aplicações do usuário.
-    \item \textbf{RNF02 - Privacidade e Segurança Lógica:} A comunicação externa e a autenticação devem utilizar protocolos criptografados (ex: TLS/SSL\footnote{\textit{Transport Layer Security / Secure Sockets Layer}: protocolos de criptografia para comunicação segura em rede.}, SSH \cite{rfc4251}), garantindo que os dados em trânsito e as aplicações de servidor não sejam interceptados.
-    \item \textbf{RNF03 - Confiabilidade de Dados:} O gerenciamento de armazenamento deve utilizar um sistema de arquivos moderno (ex: Btrfs ou ext4 com redundância) com suporte à verificação de integridade e prevenção contra corrupção silenciosa de dados (\textit{bit rot}) \cite{rodeh2013}.
+    \item \textbf{RNF01 - Desempenho e Eficiência:} O sistema operacional deve ser enxuto e otimizado para a arquitetura \textit{Advanced RISC Machine} (ARM) embarcada, com baixo consumo de recursos e priorização da alocação de memória para aplicações do usuário.
+    \item \textbf{RNF02 - Privacidade e Segurança Lógica:} A comunicação externa e a autenticação devem utilizar protocolos criptografados (ex: \textit{Transport Layer Security/Secure Sockets Layer} (TLS/SSL), SSH \cite{rfc4251}), garantindo que os dados em trânsito e as aplicações de servidor não sejam interceptados.
+    \item \textbf{RNF03 - Confiabilidade de Dados:} O gerenciamento de armazenamento deve utilizar um sistema de arquivos moderno (ex: Btrfs (com checksums e detecção de \textit{bit rot}) ou ext4 (sistema padrão do Linux, sem checksums nativos) com redundância) com suporte à verificação de integridade e prevenção contra corrupção silenciosa de dados (\textit{bit rot} — corrupção silenciosa de dados sem sinalização ao usuário) \cite{rodeh2013}.
     \item \textbf{RNF04 - Autonomia e Tolerância a Falhas:} O módulo de energia (no-break) deve manter o NAS operacional por 5 minutos após uma interrupção da rede elétrica, tempo suficiente para a conclusão do processo de shutdown seguro, prevenindo perda de blocos em disco.
     \item \textbf{RNF05 - Estrutura e Concepção Mecânica:} O sistema deverá dispor de uma estrutura mecânica para conter o Raspberry PI 5 e seus demais módulos, tais como refrigeração, circuito \textit{no-break}, entre outros.
     \item
-    \textbf{RNF06 - Escalabilidade Térmica:} O sistema de arrefecimento deve ser capaz de manter a temperatura abaixo do limite de \textit{thermal throttling} mesmo sob carga de 100\% de CPU e I/O de disco por 30 minutos.
-    \item \textbf{RNF07 - Arquitetura de Micro-Backend} A camada de gerenciamento deve utilizar um micro-backend de baixo \textit{overhead} (ex: Go ou Python), garantindo tempos de resposta inferiores a 200ms para requisições de status do sistema.
+    \textbf{RNF06 - Escalabilidade Térmica:} O sistema de arrefecimento deve ser capaz de manter a temperatura abaixo do limite de \textit{thermal throttling} (redução de frequência do processador para prevenir danos por calor) mesmo sob carga de 100\% de CPU e I/O de disco por 30 minutos.
+    \item \textbf{RNF07 - Arquitetura de Micro-Backend} A camada de gerenciamento deve utilizar um micro-backend de baixo \textit{overhead} (custo computacional adicional além da tarefa principal) (ex: Go ou Python), garantindo tempos de resposta inferiores a 200ms para requisições de status do sistema.
 \end{itemize}
 
 
@@ -159,10 +159,10 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 \section{Integração de Disciplinas}  
 O desenvolvimento deste sistema exige uma abordagem multidisciplinar, conectando diversas disciplinas encontradas no curso de Engenharia de Computação da UTFPR:
 \begin{itemize}
-    \item \textbf{Sistemas Operacionais:} Construção e compilação de uma distribuição Linux customizada, configuração e compilação do \textit{kernel} e gerenciamento de processos e sistemas de arquivos \cite{tanenbaum2015}.
+    \item \textbf{Sistemas Operacionais:} Construção e compilação de uma distribuição Linux customizada, configuração e compilação do \textit{kernel} (núcleo do sistema operacional) e gerenciamento de processos e sistemas de arquivos \cite{tanenbaum2015}.
     \item \textbf{Redes de Computadores:} Configuração de protocolos de compartilhamento, roteamento interno e exposição segura de serviços para redes externas.
-    \item \textbf{Sistemas Embarcados \& Eletrônica Geral 1:} Interfaceamento da Raspberry Pi com o hardware customizado, condicionamento de sinais e dimensionamento de fontes chaveadas e circuitos de carga/descarga de baterias para o no-break.
-    \item \textbf{Circuitos Digitais:} Controle PWM\footnote{\textit{Pulse Width Modulation} (Modulação por Largura de Pulso): controle de potência por variação da duração de pulsos digitais.} para refrigeração e lógica digital para os sensores do hardware de suporte.
+    \item \textbf{Sistemas Embarcados \& Eletrônica Geral 1:} Interfaceamento da Raspberry Pi com o hardware customizado, condicionamento de sinais e dimensionamento de fontes chaveadas (conversores de tensão de alta eficiência) e circuitos de carga/descarga de baterias para o no-break.
+    \item \textbf{Circuitos Digitais:} Controle PWM (\textit{Pulse Width Modulation} --- Modulação por Largura de Pulso) para refrigeração e lógica digital para os sensores do hardware de suporte.
     \item \textbf{Banco de Dados:} Estruturação dos dados utilizados pelos serviços hospedados no NAS e gerenciamento das permissões de acesso e metadados.
     \item \textbf{Engenharia de Software:} Aplicação de metodologias ágeis no ciclo de vida do desenvolvimento, levantamento de requisitos e versionamento do código \cite{sommerville2011}.
 \end{itemize}
@@ -174,10 +174,10 @@ O desenvolvimento deste sistema exige uma abordagem multidisciplinar, conectando
 \subsection{Descrição do Software}
 O ecossistema de software deste projeto é dividido em quatro camadas:  
 \begin{itemize}  
-    \item \textbf{Sistema Operacional:} Utilização da distribuição Gentoo Linux como base, mas customizada para ser desprovida de pacotes não essenciais, com \textit{kernel} focado em inicialização rápida e baixo \textit{overhead}.
-    \item \textbf{I/O e Rede:} \textit{Daemons} responsáveis por expor o armazenamento, como o servidores diversos e protocolos FTP/SFTP.
+    \item \textbf{Sistema Operacional:} Utilização da distribuição Gentoo Linux (distribuição compilada a partir do código-fonte, resultando em um sistema enxuto e otimizado para o hardware) como base, mas customizada para ser desprovida de pacotes não essenciais, com \textit{kernel} focado em inicialização rápida e baixo \textit{overhead}.
+    \item \textbf{I/O e Rede:} \textit{Daemons} (processos em segundo plano que gerenciam serviços contínuos) responsáveis por expor o armazenamento, como o servidores diversos e protocolos FTP/SFTP.
     \item \textbf{Abstração de Serviços (Virtualização):} Utilização de um motor de contêineres (como Docker ou Podman) para isolar e permitir hospedagem de aplicações adicionais instaladas pelos usuários (ex: servidores de mídia, \textit{pi-hole}, \textit{home assistant}).
-    \item \textbf{Inteligência Monitoramento:} Rotinas de software (\textit{scripts} em \textit{bash} ou \textit{Python}) que recebem interrupções do circuito de no-break via pinos GPIO\footnote{\textit{General Purpose Input/Output}: pinos de entrada/saída de propósito geral do Raspberry Pi.} e executam o desligamento seguro, além de monitorar e ajustar a velocidade das ventoinhas \cite{donovan2015}.
+    \item \textbf{Inteligência Monitoramento:} Rotinas de software (\textit{scripts} em \textit{bash} ou \textit{Python}) que recebem interrupções do circuito de no-break via pinos GPIO (\textit{General Purpose Input/Output}) e executam o desligamento seguro, além de monitorar e ajustar a velocidade das ventoinhas \cite{donovan2015}.
 \end{itemize}  
 
 % --- SEÇÃO: DESCRIÇÃO DO HARDWARE ---  
@@ -185,8 +185,8 @@ O ecossistema de software deste projeto é dividido em quatro camadas:
 O ecossistema de hardware contempla os elementos lógicos e de potência estruturados da seguinte forma:
 \begin{itemize}  
     \item \textbf{Unidade Central de Processamento:} Raspberry Pi 5 com 2 GB de RAM, provendo performance e interfaces I/O.
-    \item \textbf{Controladora de Armazenamento:} Interfaceamento via \textit{Hat}\footnote{\textit{Hardware Attached on Top}: placa de expansão padronizada para o Raspberry Pi.} PCIe-to-SATA, garantindo largura de banda suficiente para arranjos RAID\footnote{\textit{Redundant Array of Independent Disks}: combinação de múltiplos discos em uma unidade lógica para desempenho e/ou redundância.} e I/O intensivo \cite{halfacree2023}.
-    \item \textbf{Módulo de No-Break:} Circuito customizado composto por células de Lítio (ex: 18650), um \textit{Battery Management System} (BMS) \cite{plett2015}, e conversores \textit{Buck/Boost} para manter a estabilidade dos 5V/5A requeridos pela RPi e a linha de 12V dos discos rígidos.
+    \item \textbf{Controladora de Armazenamento:} Interfaceamento via \textit{Hat} (\textit{Hardware Attached on Top}) PCIe-to-SATA, garantindo largura de banda suficiente para arranjos RAID (\textit{Redundant Array of Independent Disks}) e I/O intensivo \cite{halfacree2023}.
+    \item \textbf{Módulo de No-Break:} Circuito customizado composto por células de Lítio (ex: 18650), um \textit{Battery Management System} (BMS) \cite{plett2015}, e conversores \textit{Buck/Boost} (\textit{Buck} reduz tensão; \textit{Boost} eleva) para manter a estabilidade dos 5V/5A requeridos pela RPi e a linha de 12V dos discos rígidos.
     \item \textbf{Sistema de Arrefecimento:} Estrutura projetada para fluxo de ar forçado, com exaustores acionados via transistores governados pelo PWM da Raspberry Pi \cite{lasance2005}.
 \end{itemize}  
 
@@ -377,35 +377,6 @@ Para melhor visualização do fluxo de trabalho e do caminho crítico do projeto
 
     \label{fig:grafo_dependencias}
 \end{figure}
-
-% --- SEÇÃO: GLOSSÁRIO ---
-\section*{Glossário}
-
-\begin{description}
-    \item[\textit{Bit rot}] Degradação silenciosa e progressiva de dados armazenados causada por falhas físicas em células de memória, interferência eletromagnética ou erros não detectados de leitura/escrita, sem que o sistema sinalize o erro ao usuário.
-
-    \item[Btrfs] \textit{B-Tree Filesystem}: sistema de arquivos avançado do Linux com suporte nativo a checksums de dados, snapshots e detecção de \textit{bit rot}, sendo a escolha preferencial quando a integridade dos dados é prioritária.
-
-    \item[\textit{Cold storage}] Modalidade de armazenamento para dados raramente acessados, que prioriza baixo custo por GB em detrimento da velocidade de acesso.
-
-    \item[Contêineres] Unidades de software que empacotam uma aplicação e todas as suas dependências em um ambiente isolado e reproduzível, compartilhando o \textit{kernel} do sistema operacional hospedeiro sem necessidade de uma máquina virtual completa.
-
-    \item[Conversores \textit{Buck/Boost}] Circuitos eletrônicos de comutação que ajustam a tensão de entrada para um nível desejado: o conversor \textit{Buck} reduz a tensão (ex: 12V para 5V) e o \textit{Boost} a eleva (ex: 3,7V da bateria para 5V).
-
-    \item[\textit{Daemons}] Processos executados em segundo plano pelo sistema operacional, sem interação direta com o usuário, responsáveis por gerenciar serviços contínuos como servidores de rede, compartilhamento de arquivos e monitoramento.
-
-    \item[ext4] \textit{Fourth Extended Filesystem}: sistema de arquivos padrão do Linux, amplamente suportado e consolidado. Mais simples que o Btrfs, sem checksums nativos, mas robusto e com excelente compatibilidade com ferramentas de recuperação.
-
-    \item[Fontes chaveadas] \textit{Switched-mode power supplies}: circuitos de alimentação que convertem tensão com alta eficiência energética usando transistores como chaves, ao contrário das fontes lineares que dissipam o excesso como calor.
-
-    \item[Gentoo Linux] Distribuição Linux orientada à compilação do código-fonte, que permite otimizar cada pacote para o hardware específico. Resulta em um sistema extremamente enxuto, sem pacotes desnecessários, ideal para dispositivos embarcados de recursos limitados.
-
-    \item[\textit{Kernel}] Núcleo do sistema operacional, responsável por gerenciar diretamente o hardware (processador, memória, dispositivos de I/O) e prover uma interface controlada para os demais programas do sistema.
-
-    \item[\textit{Overhead}] Carga computacional adicional imposta por um sistema além da tarefa principal que executa, como gerenciamento de memória, protocolos de comunicação e controle de processos.
-
-    \item[\textit{Thermal throttling}] Mecanismo de proteção do processador que reduz automaticamente sua frequência de operação ao atingir a temperatura máxima permitida, degradando o desempenho para evitar danos permanentes ao \textit{hardware}.
-\end{description}
 
 \begin{thebibliography}{99}
 
