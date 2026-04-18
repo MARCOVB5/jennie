@@ -98,7 +98,7 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 \begin{figure}[H]  
     \centering  
     % Adicione o diagrama de blocos real na pasta images
-    \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{diagrama.jpg}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{images/diagrama.jpg}}
     \caption{Diagrama de Blocos da Arquitetura do NAS}  
     \label{fig:diagrama}  
 \end{figure}  
@@ -108,7 +108,7 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 
 \subsection{Requisitos Funcionais (RF)}
 \begin{itemize}
-    \item \textbf{RF01 - Gerenciamento de Armazenamento:} O sistema deve ser capaz de reconhecer, formatar e gerenciar um arranjo de até 4 discos rígidos de forma eficiente.
+    \item \textbf{RF01 - Gerenciamento de Armazenamento:} O sistema deve ser capaz de reconhecer, formatar e gerenciar um arranjo de até 4 discos rígidos (HDDs) de 2.5". A escolha exclusiva por HDDs justifica-se pelo foco do projeto em alta densidade de armazenamento e soberania de dados com baixo custo de aquisição \cite{berl2010}. Visto que o gargalo de desempenho para o uso doméstico reside na interface de rede e no barramento PCIe-to-SATA compartilhado \cite{halfacree2023}, o uso de SSDs elevaria o custo total sem proporcionar ganho perceptível em aplicações de \textit{cold storage} e servidores de mídia.
     \item \textbf{RF02 - Compartilhamento de Rede:} O sistema deve prover o acesso aos arquivos através da rede local (ou externa), permitindo leitura e escrita por diferentes dispositivos de forma segura.
     \item \textbf{RF03 - Controle de Acesso e Usuários:} O sistema deve permitir a criação de múltiplos usuários, gerenciando diferentes níveis de permissão de acesso a diretórios específicos.
     \item \textbf{RF04 - Segurança Física do Sistema:} O NAS deve incorporar mecanismos eletrônicos (no-break e controle térmico) que garantam a consistência da operação contra quedas de energia e sobreaquecimento.
