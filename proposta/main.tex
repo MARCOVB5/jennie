@@ -18,6 +18,8 @@
 \usepackage{tikz}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{xltabular}
 \usetikzlibrary{shapes, arrows, positioning, calc}
 
 % Configuração da geometria da página  
@@ -81,7 +83,7 @@ Atualmente, os serviços convencionais de armazenamento em nuvem (\textit{cloud 
 
 Contudo, essas soluções comerciais frequentemente se baseiam em hardware e software proprietários, o que caracteriza um modelo de "caixa preta" (\textit{vendor lock-in}) \cite{shapiro1999}. Além de restringir a verdadeira privacidade e o controle absoluto do sistema, os produtos de NAS tradicionais possuem um custo de aquisição elevado e um consumo de energia considerável para operações contínuas \cite{berl2010}.
 
-Diante desse cenário de problemas em cascata, este projeto propõe o desenvolvimento de um servidor NAS eficiente, transparente e acessível, fundamentado em uma placa \textit{Raspberry Pi 5} \cite{upton2014}. A arquitetura funcionará sob um sistema operacional customizado de código livre e aberto, garantindo total transparência e otimização de recursos. Adicionalmente, o projeto engloba a construção de módulos eletrônicos dedicados, incluindo um no-break (\textit{Uninterruptible Power Supply} --- UPS) e controle de refrigeração ativa, assegurando a estabilidade e a integridade do hardware.
+Diante desse cenário de problemas em cascata, este projeto propõe o desenvolvimento de um servidor NAS eficiente, transparente e acessível, fundamentado em uma placa Raspberry Pi 5 \cite{upton2014}. A arquitetura funcionará sob um sistema operacional customizado de código livre e aberto, garantindo total transparência e otimização de recursos. Adicionalmente, o projeto engloba a construção de módulos eletrônicos dedicados, incluindo um no-break (\textit{Uninterruptible Power Supply} --- UPS) e controle de refrigeração ativa, assegurando a estabilidade e a integridade do hardware.
 
 
 \begin{figure}[htbp]
@@ -107,7 +109,7 @@ Diante desse cenário de problemas em cascata, este projeto propõe o desenvolvi
 
  %--- SEÇÃO: DESCRIÇÃO GERAL ---  
 \section{Descrição Geral}  
-O projeto consiste em um sistema de armazenamento estruturado em três componentes principais: hardware de processamento (Raspberry Pi 5), módulos eletrônicos de suporte e um ecossistema de software customizado. A Raspberry Pi atua como o núcleo do sistema, interligando o arranjo de discos rígidos através de barramentos de alta velocidade (\textit{Peripheral Component Interconnect Express} --- PCIe). Para viabilizar a operação 24/7 de maneira confiável, um circuito \textit{no-break} incorpora o gerenciamento de baterias e circuitos lógicos para acionamento das ventoinhas conforme a demanda térmica do processador e dos discos. \\
+O projeto consiste em um sistema de armazenamento estruturado em três componentes principais: hardware de processamento (Raspberry Pi 5), módulos eletrônicos de suporte e um ecossistema de software customizado. A Raspberry Pi atua como o núcleo do sistema, interligando o arranjo de discos rígidos através de barramentos de alta velocidade (\textit{Peripheral Component Interconnect Express} --- PCIe). Para viabilizar a operação 24/7 (funcionamento ininterrupto) de maneira confiável, um circuito no-break incorpora o gerenciamento de baterias e circuitos lógicos para acionamento das ventoinhas conforme a demanda térmica do processador e dos discos. \\
 Do ponto de vista funcional, o sistema provê ao usuário uma plataforma centralizada para:
 \begin{itemize}
 \item \textbf{Gestão de Dados e Soberania Digital:} Armazenamento, organização e exploração de arquivos via rede local ou remota, utilizando protocolos seguros e interface web dedicada.
@@ -129,12 +131,12 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 
 \subsection{Requisitos Funcionais (RF)}
 \begin{itemize}
-    \item \textbf{RF01 - Gerenciamento de Armazenamento:} O sistema deve ser capaz de reconhecer, formatar e gerenciar um arranjo de até 4 discos rígidos (HDDs) de 2.5". A escolha exclusiva por HDDs justifica-se pelo foco do projeto em alta densidade de armazenamento e soberania de dados com baixo custo de aquisição \cite{berl2010}. Visto que o gargalo de desempenho para o uso doméstico reside na interface de rede e no barramento PCIe-to-SATA (\textit{Serial ATA}) compartilhado \cite{halfacree2023}, o uso de SSDs elevaria o custo total sem proporcionar ganho perceptível em aplicações de \textit{cold storage} (dados raramente acessados, priorizando baixo custo por GB) e servidores de mídia.
+    \item \textbf{RF01 - Gerenciamento de Armazenamento:} O sistema deve ser capaz de reconhecer, formatar e gerenciar um arranjo de até 4 discos rígidos (\textit{Hard Disk Drives} --- HDDs) de 2.5". A escolha exclusiva por HDDs justifica-se pelo foco do projeto em alta densidade de armazenamento e soberania de dados com baixo custo de aquisição \cite{berl2010}. Visto que o gargalo de desempenho para o uso doméstico reside na interface de rede e no barramento PCIe-to-SATA (\textit{Serial ATA}) compartilhado \cite{halfacree2023}, o uso de SSDs (\textit{Solid State Drives} --- unidades de armazenamento em estado sólido) elevaria o custo total sem proporcionar ganho perceptível em aplicações de \textit{cold storage} (dados raramente acessados, priorizando baixo custo por GB) e servidores de mídia.
     \item \textbf{RF02 - Compartilhamento de Rede:} O sistema deve prover o acesso aos arquivos através da rede local (ou externa), permitindo leitura e escrita por diferentes dispositivos de forma segura.
     \item \textbf{RF03 - Controle de Acesso e Usuários:} O sistema deve permitir a criação de múltiplos usuários, gerenciando diferentes níveis de permissão de acesso a diretórios específicos.
     \item \textbf{RF04 - Segurança Física do Sistema:} O NAS deve incorporar mecanismos eletrônicos (no-break e controle térmico) que garantam a consistência da operação contra quedas de energia e sobreaquecimento.
-    \item \textbf{RF05 - Hospedagem:} O sistema deve permitir a execução de serviços em ambientes isolados (contêineres), garantindo que falhas em uma aplicação não afetem o sistema operacional host.
-    \item \textbf{RF06 - Monitoramento e Dashboard:} O sistema deve disponibilizar uma interface web para visualização em tempo real das métricas de saúde (temperatura, tensão) e performance (uso de CPU, RAM e discos), além de permitir a configuração de alertas proativos em casos de anomalia.
+    \item \textbf{RF05 - Hospedagem:} O sistema deve permitir a execução de serviços em ambientes isolados (contêineres), garantindo que falhas em uma aplicação não afetem o sistema operacional \textit{host} (sistema hospedeiro).
+    \item \textbf{RF06 - Monitoramento e Dashboard:} O sistema deve disponibilizar uma interface web para visualização em tempo real das métricas de saúde (temperatura, tensão) e performance (uso de CPU (\textit{Central Processing Unit}), RAM (\textit{Random Access Memory}) e discos), além de permitir a configuração de alertas proativos em casos de anomalia.
     \item \textbf{RF08 - Gerenciamento de Serviços:} A interface web deve permitir ao usuário iniciar, parar e visualizar o status dos contêineres de microserviços.
     \item
     \textbf{RF07 - Recuperação:} O sistema deve possuir uma rotina automática de verificação e reparo do sistema de arquivos após quedas de energia inesperadas \cite{prabhakaran2005}.
@@ -143,10 +145,10 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
 \subsection{Requisitos Não-Funcionais (RNF)}
 \begin{itemize}
     \item \textbf{RNF01 - Desempenho e Eficiência:} O sistema operacional deve ser enxuto e otimizado para a arquitetura \textit{Advanced RISC Machine} (ARM) embarcada, com baixo consumo de recursos e priorização da alocação de memória para aplicações do usuário.
-    \item \textbf{RNF02 - Privacidade e Segurança Lógica:} A comunicação externa e a autenticação devem utilizar protocolos criptografados (ex: \textit{Transport Layer Security/Secure Sockets Layer} (TLS/SSL), SSH \cite{rfc4251}), garantindo que os dados em trânsito e as aplicações de servidor não sejam interceptados.
-    \item \textbf{RNF03 - Confiabilidade de Dados:} O gerenciamento de armazenamento deve utilizar um sistema de arquivos moderno (ex: Btrfs (com checksums e detecção de \textit{bit rot}) ou ext4 (sistema padrão do Linux, sem checksums nativos) com redundância) com suporte à verificação de integridade e prevenção contra corrupção silenciosa de dados (\textit{bit rot} — corrupção silenciosa de dados sem sinalização ao usuário) \cite{rodeh2013}.
-    \item \textbf{RNF04 - Autonomia e Tolerância a Falhas:} O módulo de energia (no-break) deve manter o NAS operacional por 5 minutos após uma interrupção da rede elétrica, tempo suficiente para a conclusão do processo de shutdown seguro, prevenindo perda de blocos em disco.
-    \item \textbf{RNF05 - Estrutura e Concepção Mecânica:} O sistema deverá dispor de uma estrutura mecânica para conter o Raspberry PI 5 e seus demais módulos, tais como refrigeração, circuito \textit{no-break}, entre outros.
+    \item \textbf{RNF02 - Privacidade e Segurança Lógica:} A comunicação externa e a autenticação devem utilizar protocolos criptografados (ex: \textit{Transport Layer Security/Secure Sockets Layer} (TLS/SSL), \textit{Secure Shell} (SSH) \cite{rfc4251}), garantindo que os dados em trânsito e as aplicações de servidor não sejam interceptados.
+    \item \textbf{RNF03 - Confiabilidade de Dados:} O gerenciamento de armazenamento deve utilizar um sistema de arquivos moderno (ex: Btrfs (com \textit{checksums} (somas de verificação de integridade) e detecção de \textit{bit rot}) ou ext4 (sistema padrão do Linux, sem \textit{checksums} nativos) com redundância) com suporte à verificação de integridade e prevenção contra corrupção silenciosa de dados (\textit{bit rot} — corrupção silenciosa de dados sem sinalização ao usuário) \cite{rodeh2013}.
+    \item \textbf{RNF04 - Autonomia e Tolerância a Falhas:} O módulo de energia (no-break) deve manter o NAS operacional por 5 minutos após uma interrupção da rede elétrica, tempo suficiente para a conclusão do processo de \textit{shutdown} seguro, prevenindo perda de blocos em disco.
+    \item \textbf{RNF05 - Estrutura e Concepção Mecânica:} O sistema deverá dispor de uma estrutura mecânica para conter o Raspberry Pi 5 e seus demais módulos, tais como refrigeração, circuito no-break, entre outros.
     \item
     \textbf{RNF06 - Escalabilidade Térmica:} O sistema de arrefecimento deve ser capaz de manter a temperatura abaixo do limite de \textit{thermal throttling} (redução de frequência do processador para prevenir danos por calor) mesmo sob carga de 100\% de CPU e I/O de disco por 30 minutos.
     \item \textbf{RNF07 - Arquitetura de Micro-Backend} A camada de gerenciamento deve utilizar um micro-backend de baixo \textit{overhead} (custo computacional adicional além da tarefa principal) (ex: Go ou Python), garantindo tempos de resposta inferiores a 200ms para requisições de status do sistema.
@@ -175,8 +177,8 @@ O desenvolvimento deste sistema exige uma abordagem multidisciplinar, conectando
 O ecossistema de software deste projeto é dividido em quatro camadas:  
 \begin{itemize}  
     \item \textbf{Sistema Operacional:} Utilização da distribuição Gentoo Linux (distribuição compilada a partir do código-fonte, resultando em um sistema enxuto e otimizado para o hardware) como base, mas customizada para ser desprovida de pacotes não essenciais, com \textit{kernel} focado em inicialização rápida e baixo \textit{overhead}.
-    \item \textbf{I/O e Rede:} \textit{Daemons} (processos em segundo plano que gerenciam serviços contínuos) responsáveis por expor o armazenamento, como o servidores diversos e protocolos FTP/SFTP.
-    \item \textbf{Abstração de Serviços (Virtualização):} Utilização de um motor de contêineres (como Docker ou Podman) para isolar e permitir hospedagem de aplicações adicionais instaladas pelos usuários (ex: servidores de mídia, \textit{pi-hole}, \textit{home assistant}).
+    \item \textbf{I/O (\textit{Input/Output} --- Entrada/Saída) e Rede:} \textit{Daemons} (processos em segundo plano que gerenciam serviços contínuos) responsáveis por expor o armazenamento, como o servidores diversos e protocolos FTP/SFTP (\textit{File Transfer Protocol / SSH File Transfer Protocol} --- protocolos de transferência de arquivos).
+    \item \textbf{Abstração de Serviços (Virtualização):} Utilização de um motor de contêineres (como Docker ou Podman) para isolar e permitir hospedagem de aplicações adicionais instaladas pelos usuários (ex: servidores de mídia, \textit{Pi-hole} (bloqueador de anúncios em nível de rede), \textit{Home Assistant} (plataforma de automação residencial)).
     \item \textbf{Inteligência Monitoramento:} Rotinas de software (\textit{scripts} em \textit{bash} ou \textit{Python}) que recebem interrupções do circuito de no-break via pinos GPIO (\textit{General Purpose Input/Output}) e executam o desligamento seguro, além de monitorar e ajustar a velocidade das ventoinhas \cite{donovan2015}.
 \end{itemize}  
 
@@ -185,8 +187,8 @@ O ecossistema de software deste projeto é dividido em quatro camadas:
 O ecossistema de hardware contempla os elementos lógicos e de potência estruturados da seguinte forma:
 \begin{itemize}  
     \item \textbf{Unidade Central de Processamento:} Raspberry Pi 5 com 2 GB de RAM, provendo performance e interfaces I/O.
-    \item \textbf{Controladora de Armazenamento:} Interfaceamento via \textit{Hat} (\textit{Hardware Attached on Top}) PCIe-to-SATA, garantindo largura de banda suficiente para arranjos RAID (\textit{Redundant Array of Independent Disks}) e I/O intensivo \cite{halfacree2023}.
-    \item \textbf{Módulo de No-Break:} Circuito customizado composto por células de Lítio (ex: 18650), um \textit{Battery Management System} (BMS) \cite{plett2015}, e conversores \textit{Buck/Boost} (\textit{Buck} reduz tensão; \textit{Boost} eleva) para manter a estabilidade dos 5V/5A requeridos pela RPi e a linha de 12V dos discos rígidos.
+    \item \textbf{Controladora de Armazenamento:} Interfaceamento via HAT (\textit{Hardware Attached on Top}) PCIe-to-SATA, garantindo largura de banda suficiente para arranjos RAID (\textit{Redundant Array of Independent Disks}) e I/O intensivo \cite{halfacree2023}.
+    \item \textbf{Módulo de No-Break:} Circuito customizado composto por células de Lítio (ex: 18650), um \textit{Battery Management System} (BMS) \cite{plett2015}, e conversores \textit{Buck/Boost} (\textit{Buck} reduz tensão; \textit{Boost} eleva) para manter a estabilidade dos 5V/5A requeridos pela Raspberry Pi e a linha de 12V dos discos rígidos.
     \item \textbf{Sistema de Arrefecimento:} Estrutura projetada para fluxo de ar forçado, com exaustores acionados via transistores governados pelo PWM da Raspberry Pi \cite{lasance2005}.
 \end{itemize}  
 
@@ -197,7 +199,7 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
     \begin{itemize}  
         \item Imagem Linux/BSD (Kernel ARM64 customizado).
         \item Módulos de rede e compartilhamento (e.g. OpenSSH).
-        \item Ferramentas de gerenciamento de disco (mdadm, LVM ou utilitários ext4/Btrfs).
+        \item Ferramentas de gerenciamento de disco (mdadm (gerenciador de arranjos RAID por software), LVM (\textit{Logical Volume Manager} --- gerenciador de volumes lógicos) ou utilitários ext4/Btrfs).
         \item Interface Usuário-Servidor.
     \end{itemize}  
     \item \textbf{Hardware:}  
@@ -205,46 +207,66 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
         \item 1x Placa Raspberry Pi 5 2GB de RAM .
         \item Discos Rígidos (HDDs) para o arranjo de dados.
         \item Placa de Expansão PCIe-SATA para Raspberry Pi 5.
-        \item Componentes Eletrônicos para o No-Break: Células Li-ion 18650, Placa BMS 3S/4S, Conversores DC-DC, capacitores, resistores e mosfets.
+        \item Componentes Eletrônicos para o No-Break: Células Li-ion (\textit{Lithium-ion} --- íons de lítio) 18650, Placa BMS 3S/4S, Conversores DC-DC (conversores de tensão contínua), capacitores, resistores e MOSFETs (\textit{Metal-Oxide-Semiconductor Field-Effect Transistor} --- transistores de efeito de campo).
         \item Fonte de Alimentação primária (capaz de alimentar a Pi, carregar a bateria e girar os discos).
         \item Ventoinhas 12V/5V e dissipadores de calor.
-        \item Material PLA para \textit{case} externa.
+        \item Material PLA (\textit{Polylactic Acid} --- ácido polilático, plástico biodegradável para impressão 3D) para \textit{case} externa.
     \end{itemize}  
 \end{itemize}  
 
 
 \section{Análise de Riscos}
 
-\begin{table}[H]
-    \centering
-    \caption{Matriz de Análise e Mitigação de Riscos do Projeto}
-    \label{tab:analise_riscos}
-    \renewcommand{\arraystretch}{1.4}
-    
-    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}X c c c >{\raggedright\arraybackslash}X c c @{}}
-        \toprule
-        \textbf{Risco / Problema} & \textbf{P} & \textbf{I} & \textbf{P$\times$I} & \textbf{Estratégia de Mitigação / Resolução} & \textbf{P'} & \textbf{I'} \\
-        \midrule
-        
-        Queima ou dano físico ao Raspberry Pi 5 durante a montagem ou testes & 2 & 5 & 10 & Utilizar fonte de alimentação oficial com proteção contra surtos e manipular com pulseira antiestática. & 1 & 5 \\
-        
-        Falha no dimensionamento térmico, resultando em sobreaquecimento (\textit{thermal throttling}) do NAS & 3 & 4 & 12 & Realizar testes de estresse com o case provisório. Adicionar dissipadores passivos maiores e otimizar o script de controle PWM das ventoinhas. & 1 & 3 \\
-        
-        Desistência de algum membro da equipe de desenvolvimento & 2 & 5 & 10 & Manter documentação atualizada e código versionado no Git para facilitar a transição das tarefas. & 2 & 3 \\
-        
-        Atraso na entrega de componentes importados (ex: \textit{Hat} PCIe, BMS) & 4 & 4 & \textbf{16*} &  Realizar a compra de componentes críticos com 1 mês de antecedência ou buscar fornecedor local. & 1 & 4 \\
-        
-        \bottomrule
-    \end{tabularx}
-    
-    \vspace{1ex}
-    \raggedright
-    \footnotesize
-    \textbf{Legenda:}\\
-    \textbf{P}: Probabilidade de ocorrência inicial (0 a 5) \quad|\quad \textbf{I}: Impacto inicial (0 a 5)\\
-    \textbf{P' e I'}: Probabilidade e Impacto reavaliados após a estratégia de mitigação.\\
-    \textbf{* P$\times$I $\ge$ 13}: Risco crítico. Exige ação imediata para redução da probabilidade ou impacto \textbf{antes} do início do projeto.
-\end{table}
+\renewcommand{\arraystretch}{1.4}
+
+\begin{xltabular}{\textwidth}{@{} >{\raggedright\arraybackslash}X c c c >{\raggedright\arraybackslash}X c c @{}}
+    \caption{Matriz de Análise e Mitigação de Riscos do Projeto} \label{tab:analise_riscos} \\
+    \toprule
+    \textbf{Risco / Problema} & \textbf{P} & \textbf{I} & \textbf{P$\times$I} & \textbf{Estratégia de Mitigação / Resolução} & \textbf{P'} & \textbf{I'} \\
+    \midrule
+    \endfirsthead
+
+    \multicolumn{7}{c}{\tablename\ \thetable{} -- \textit{Continuação da página anterior}} \\
+    \toprule
+    \textbf{Risco / Problema} & \textbf{P} & \textbf{I} & \textbf{P$\times$I} & \textbf{Estratégia de Mitigação / Resolução} & \textbf{P'} & \textbf{I'} \\
+    \midrule
+    \endhead
+
+    \midrule
+    \multicolumn{7}{r}{\textit{Continua na próxima página}} \\
+    \endfoot
+
+    \bottomrule
+    \endlastfoot
+
+    Queima ou dano físico ao Raspberry Pi 5 durante a montagem ou testes & 2 & 5 & 10 & Utilizar fonte de alimentação oficial com proteção contra surtos e manipular com pulseira antiestática. & 1 & 5 \\
+
+    Falha no dimensionamento térmico, resultando em sobreaquecimento (\textit{thermal throttling}) do NAS & 3 & 4 & 12 & Realizar testes de estresse com o case provisório. Adicionar dissipadores passivos maiores e otimizar o script de controle PWM das ventoinhas. & 1 & 3 \\
+
+    Desistência de algum membro da equipe de desenvolvimento & 2 & 5 & 10 & Manter documentação atualizada e código versionado no Git para facilitar a transição das tarefas. & 2 & 3 \\
+
+    Atraso na entrega de componentes importados (ex: HAT PCIe, BMS) & 4 & 4 & \textbf{16*} & Realizar a compra de componentes críticos com 1 mês de antecedência ou buscar fornecedor local. & 1 & 4 \\
+
+    Raspberry Pi 5 (2\,GB de RAM) não suportar carga multiusuário com contêineres e serviços simultâneos & 3 & 5 & \textbf{15*} & Dimensionar \textit{swap} em disco, limitar recursos por contêiner via \textit{cgroups} e realizar testes de carga antecipados. Se inviável, migrar para o modelo de 4\,GB. & 2 & 3 \\
+
+    Largura de banda PCIe compartilhada entre os discos ser insuficiente para I/O simultâneo & 3 & 4 & 12 & Realizar \textit{benchmarks} de \textit{throughput} com múltiplos discos no Marco~1. Avaliar a adoção de RAID~1 (espelhamento) em vez de RAID~5 para reduzir \textit{overhead} de paridade. & 2 & 3 \\
+
+    Incompatibilidade do \textit{kernel} Gentoo customizado com os drivers do HAT PCIe-SATA & 3 & 5 & \textbf{15*} & Validar a compatibilidade do HAT com o \textit{kernel} compilado já no Marco~1, antes de avançar o desenvolvimento do SO. Manter uma imagem Raspberry Pi OS como \textit{fallback}. & 1 & 5 \\
+
+    Falha no circuito de no-break (UPS) causar desligamento abrupto e corrupção do sistema de arquivos & 2 & 5 & 10 & Testar o circuito UPS isoladamente antes da integração (Marco~2). Utilizar sistema de arquivos com \textit{journaling} (ext4/Btrfs) e rotinas de \textit{fsck} automáticas na inicialização. & 1 & 4 \\
+
+    Deformação da \textit{case} impressa em PLA devido ao calor contínuo dos componentes ($>$60\textdegree C) & 3 & 3 & 9 & Monitorar temperaturas internas durante os testes de estresse. Se necessário, reimprimir peças críticas em PETG (resistente até $\sim$80\textdegree C) ou adicionar isolamento térmico entre os HDDs e a estrutura. & 1 & 3 \\
+
+\end{xltabular}
+
+\vspace{1ex}
+\raggedright
+\footnotesize
+\textbf{Legenda:}\\
+\textbf{P}: Probabilidade de ocorrência inicial (0 a 5) \quad|\quad \textbf{I}: Impacto inicial (0 a 5)\\
+\textbf{P' e I'}: Probabilidade e Impacto reavaliados após a estratégia de mitigação.\\
+\textbf{* P$\times$I $\ge$ 13}: Risco crítico. Exige ação imediata para redução da probabilidade ou impacto \textbf{antes} do início do projeto.
+\normalsize
 
 % --- SEÇÃO: CRONOGRAMA ---  
 % --- SEÇÃO: CRONOGRAMA ---  
@@ -268,13 +290,13 @@ A Tabela \ref{tab:cronograma} detalha as atividades, prazos, responsáveis e os 
         \multicolumn{8}{c}{\textbf{Marco 1: Sistema Base e Interface (29/04/2026)}} \\
         \midrule
         M1.1 & Aquisição e testes básicos de hardware & 15 & 01/04 & 10/04 & Marco & Componentes validados & - \\
-        M1.2 & Compilação e configuração inicial do SO & 20 & 11/04 & 20/04 & Fernando & Imagem do SO pronta & M1.1 \\
+        M1.2 & Compilação e configuração inicial do SO (Sistema Operacional) & 20 & 11/04 & 20/04 & Fernando & Imagem do SO pronta & M1.1 \\
         M1.3 & Interface Raspberry Pi x Usuário (SSH/Web) & 15 & 21/04 & 29/04 & Gabriel & Acesso remoto funcional & M1.2 \\
         
         \midrule
         \multicolumn{8}{c}{\textbf{Marco 2: Serviços e Energia (20/05/2026)}} \\
         \midrule
-        M2.1 & Projeto e montagem do circuito No-Break & 25 & 30/04 & 10/05 & Gabriel & PCB/Circuito funcional & M1.1 \\
+        M2.1 & Projeto e montagem do circuito No-Break & 25 & 30/04 & 10/05 & Gabriel & PCB (\textit{Printed Circuit Board})/Circuito funcional & M1.1 \\
         M2.2 & Serviço de I/O, rede e monitoramento & 20 & 30/04 & 12/05 & Fernando & Serviços operacionais & M1.2 \\
         M2.3 & Configurar sessões multiusuário para o SO & 15 & 13/05 & 20/05 & Fernando & Permissões configuradas & M2.2 \\
         
@@ -282,8 +304,8 @@ A Tabela \ref{tab:cronograma} detalha as atividades, prazos, responsáveis e os 
         \multicolumn{8}{c}{\textbf{Marco 3: Estrutura Física e Arrefecimento (03/06/2026)}} \\
         \midrule
         M3.1 & Montagem do circuito de dissipação de calor & 15 & 21/05 & 27/05 & Gabriel & Fans com controle PWM & M2.2 \\
-        M3.2 & Modelagem e impressão do CASE 3D e Visor & 25 & 21/05 & 31/05 & Marco & Peças plásticas impressas & M1.1 \\
-        M3.3 & Organizar sistema no CASE (pré-montagem) & 10 & 01/06 & 03/06 & Marco & Acomodação validada & M3.1, M3.2 \\
+        M3.2 & Modelagem e impressão do \textit{case} 3D e visor & 25 & 21/05 & 31/05 & Marco & Peças plásticas impressas & M1.1 \\
+        M3.3 & Organizar sistema no \textit{case} (pré-montagem) & 10 & 01/06 & 03/06 & Marco & Acomodação validada & M3.1, M3.2 \\
         
         \midrule
         \multicolumn{8}{c}{\textbf{Marco 4 e Conclusão: Integração e Validação (24/06/2026)}} \\
