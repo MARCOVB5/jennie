@@ -53,7 +53,7 @@
 
 \vspace{1em}  
 \begin{center}  
-    \Large\textbf{Projeto Jennie: Servidor NAS de Baixo Consumo e  Alta Confiabilidade} \\
+    \Large\textbf{Projeto Jennie: Servidor NAS Econômico, Eficiente e Seguro} \\
 \end{center} 
 \vspace{1em}  
 
@@ -195,7 +195,7 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
 \begin{itemize}  
     \item \textbf{Unidade Central de Processamento:} Raspberry Pi 5 com 2 GB de RAM, provendo performance e interfaces I/O.
     \item \textbf{Controladora de Armazenamento:} Interfaceamento via HAT (\textit{Hardware Attached on Top}) PCIe-to-SATA, garantindo largura de banda suficiente para arranjos RAID (\textit{Redundant Array of Independent Disks}) e I/O intensivo \cite{halfacree2023}.
-    \item \textbf{Módulo de No-Break:} Circuito customizado composto por células de Lítio (ex: 18650), um \textit{Battery Management System} (BMS) \cite{plett2015}, e conversores \textit{Buck/Boost} (\textit{Buck} reduz tensão; \textit{Boost} eleva) para manter a estabilidade dos 5V/5A requeridos pela Raspberry Pi e a linha de 12V dos discos rígidos.
+    \item \textbf{Módulo de No-Break:} Circuito customizado composto por células de Lítio (ex: 18650) e um \textit{Battery Management System} (BMS) \cite{plett2015}.
     \item \textbf{Sistema de Arrefecimento:} Estrutura projetada para fluxo de ar forçado, com exaustores acionados via transistores governados pelo PWM da Raspberry Pi \cite{lasance2005}.
 \end{itemize}  
 
@@ -258,11 +258,11 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
 
     Largura de banda PCIe compartilhada entre os discos ser insuficiente para I/O simultâneo & 3 & 4 & 12 & Realizar \textit{benchmarks} de \textit{throughput} com múltiplos discos no Marco~1. Avaliar a adoção de RAID~1 (espelhamento) em vez de RAID~5 para reduzir \textit{overhead} de paridade. & 2 & 3 \\
 
-    Incompatibilidade do \textit{kernel} Gentoo customizado com os drivers do HAT PCIe-SATA & 3 & 5 & \textbf{15*} & Validar a compatibilidade do HAT com o \textit{kernel} compilado já no Marco~1, antes de avançar o desenvolvimento do SO. Manter uma imagem Raspberry Pi OS como \textit{fallback}. & 1 & 5 \\
+    Incompatibilidade do \textit{kernel} Gentoo customizado com os drivers do HAT PCIe-SATA & 3 & 5 & \textbf{15*} & Validar a compatibilidade do HAT com o \textit{kernel} compilado. Manter uma imagem Raspberry Pi OS como segunda opção. & 1 & 5 \\
 
-    Falha no circuito de no-break (UPS) causar desligamento abrupto e corrupção do sistema de arquivos & 2 & 5 & 10 & Testar o circuito UPS isoladamente antes da integração (Marco~2). Utilizar sistema de arquivos com \textit{journaling} (ext4/Btrfs) e rotinas de \textit{fsck} automáticas na inicialização. & 1 & 4 \\
+    Falha no circuito de no-break (UPS) causar desligamento abrupto e corrupção do sistema de arquivos & 2 & 5 & 10 & Testar o circuito UPS isoladamente antes da integração. & 1 & 4 \\
 
-    Deformação da \textit{case} impressa em PLA devido ao calor contínuo dos componentes ($>$60\textdegree C) & 3 & 3 & 9 & Monitorar temperaturas internas durante os testes de estresse. Se necessário, reimprimir peças críticas em PETG (resistente até $\sim$80\textdegree C) ou adicionar isolamento térmico entre os HDDs e a estrutura. & 1 & 3 \\
+    Deformação da \textit{case} impressa em PLA devido ao calor contínuo dos componentes ($>$60\textdegree C) & 3 & 3 & 9 & Monitorar temperaturas internas durante os testes de estresse. Se necessário, adicionar isolamento térmico entre os HDDs e a estrutura. & 1 & 3 \\
 
 \end{xltabular}
 
@@ -283,53 +283,70 @@ Para a execução deste projeto e alinhamento com as avaliações da disciplina,
 
 A Tabela \ref{tab:cronograma} detalha as atividades, prazos, responsáveis e os produtos esperados para cada Marco. A coluna de dependências (Dep.) indica quais tarefas precisam ser concluídas antes do início da atividade em questão.
 
-\begin{table}[H]
-    \centering
-    \caption{Cronograma Detalhado de Atividades por Marcos}
-    \label{tab:cronograma}
-    \renewcommand{\arraystretch}{1.3}
-    \footnotesize 
-    \begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}X c c c c >{\raggedright\arraybackslash}X l @{}}
-        \toprule
-        \textbf{ID} & \textbf{Atividade} & \textbf{Dur. (h)*} & \textbf{Início} & \textbf{Fim} & \textbf{Resp.} & \textbf{Entregável (Produto)} & \textbf{Dep.} \\
-        \midrule
+\renewcommand{\arraystretch}{1.3}
+\footnotesize
+\begin{xltabular}{\textwidth}{@{} l >{\raggedright\arraybackslash}X c c c c >{\raggedright\arraybackslash}X l @{}}
+    \caption{Cronograma Detalhado de Atividades por Marcos} \label{tab:cronograma} \\
+    \toprule
+    \textbf{ID} & \textbf{Atividade} & \textbf{Dur. (h)*} & \textbf{Início} & \textbf{Fim} & \textbf{Resp.} & \textbf{Entregável (Produto)} & \textbf{Dep.} \\
+    \midrule
+    \endfirsthead
+
+    \multicolumn{8}{c}{\tablename\ \thetable{} -- \textit{Continuação da página anterior}} \\
+    \toprule
+    \textbf{ID} & \textbf{Atividade} & \textbf{Dur. (h)*} & \textbf{Início} & \textbf{Fim} & \textbf{Resp.} & \textbf{Entregável (Produto)} & \textbf{Dep.} \\
+    \midrule
+    \endhead
+
+    \midrule
+    \multicolumn{8}{r}{\textit{Continua na próxima página}} \\
+    \endfoot
+
+    \bottomrule
+    \multicolumn{8}{l}{\scriptsize *Duração em horas já contempla a superestimativa de $30$\% exigida.}
+    \endlastfoot
 
         \multicolumn{8}{c}{\textbf{Entregável 1: Site/Blog de Acompanhamento (08/04/2026)}} \\
         \midrule
-        M0.1 & Criação do site/blog e publicação do plano de projeto & 8 & 25/03 & 08/04 & Todos & Site com documentação inicial & - \\
+        M0.1 & Criação do site/blog (Notion) e publicação do plano de projeto & 9 & 25/03 & 08/04 & Todos & Site com documentação inicial & - \\
 
         \midrule
-        \multicolumn{8}{c}{\textbf{Entregável 2: Sistema Base e Interface (29/04/2026)}} \\
+        \multicolumn{8}{c}{\textbf{Entregável 2: Sistema Base (29/04/2026)}} \\
         \midrule
-        M1.1 & Aquisição e testes básicos de hardware & 15 & 01/04 & 10/04 & Marco & Componentes validados & - \\
-        M1.2 & Compilação e configuração inicial do SO (Sistema Operacional) & 20 & 11/04 & 20/04 & Fernando & Imagem do SO pronta & M1.1 \\
-        M1.3 & Interface Raspberry Pi x Usuário (SSH/Web) & 15 & 21/04 & 29/04 & Gabriel & Acesso remoto funcional & M1.2 \\
-        
+        M1.1 & Pesquisa e compra dos componentes & 12 & 09/04 & 16/04 & Marco & Componentes adquiridos & - \\
+        M1.2 & Configuração do ambiente de compilação cruzada & 10 & 09/04 & 16/04 & Fernando & \textit{Toolchain} funcional & - \\
+        M1.3 & Customização do kernel do SO (Gentoo Linux) & 15 & 17/04 & 23/04 & Fernando & Kernel compilado e configurado & M1.2 \\
+        M1.4 & Realização do boot do SO na Raspberry Pi & 8 & 24/04 & 27/04 & Gabriel & SO inicializando na Pi & M1.1, M1.3 \\
+        M1.5 & Configuração da comunicação de rede via SSH & 8 & 27/04 & 29/04 & Gabriel & Acesso remoto funcional & M1.4 \\
+
         \midrule
         \multicolumn{8}{c}{\textbf{Entregável 3: Serviços e Energia (20/05/2026)}} \\
         \midrule
-        M2.1 & Projeto e montagem do circuito No-Break & 25 & 30/04 & 10/05 & Gabriel & PCB (\textit{Printed Circuit Board})/Circuito funcional & M1.1 \\
-        M2.2 & Serviço de I/O, rede e monitoramento & 20 & 30/04 & 12/05 & Fernando & Serviços operacionais & M1.2 \\
-        M2.3 & Configurar sessões multiusuário para o SO & 15 & 13/05 & 20/05 & Fernando & Permissões configuradas & M2.2 \\
-        
+        M2.1 & Montagem física do HAT PCIe-SATA & 8 & 30/04 & 04/05 & Marco & HAT instalado e conectado & M1.4 \\
+        M2.2 & Configuração do arranjo de discos (reconhecimento, montagem e formatação) & 12 & 05/05 & 12/05 & Marco & Discos operacionais com sistema de arquivos & M2.1 \\
+        M2.3 & Desenvolvimento do sistema multiusuário (perfis e permissões) & 12 & 05/05 & 14/05 & Fernando & Permissões de leitura/escrita configuradas & M1.5 \\
+        M2.4 & Montagem do circuito no-break (UPS) & 18 & 30/04 & 14/05 & Gabriel & Circuito UPS funcional & M1.1 \\
+        M2.5 & Implementação da lógica de desligamento seguro & 6 & 15/05 & 20/05 & Fernando & \textit{Shutdown} automático via GPIO & M2.4 \\
+
         \midrule
-        \multicolumn{8}{c}{\textbf{Entregável 4: Estrutura Física e Arrefecimento (03/06/2026)}} \\
+        \multicolumn{8}{c}{\textbf{Entregável 4: Estrutura e Interface (03/06/2026)}} \\
         \midrule
-        M3.1 & Montagem do circuito de dissipação de calor & 15 & 21/05 & 27/05 & Gabriel & Fans com controle PWM & M2.2 \\
-        M3.2 & Modelagem e impressão do \textit{case} 3D e visor & 25 & 21/05 & 31/05 & Marco & Peças plásticas impressas & M1.1 \\
-        M3.3 & Organizar sistema no \textit{case} (pré-montagem) & 10 & 01/06 & 03/06 & Marco & Acomodação validada & M3.1, M3.2 \\
-        
+        M3.1 & Modelagem e impressão da \textit{case} 3D & 20 & 21/05 & 31/05 & Marco & Peças plásticas impressas & M1.1 \\
+        M3.2 & Desenvolvimento da interface web & 16 & 21/05 & 01/06 & Fernando & Dashboard operacional & M2.3 \\
+        M3.3 & Configuração da orquestração de microserviços & 10 & 21/05 & 03/06 & Gabriel & Contêineres isolados funcionais & M1.5 \\
+
         \midrule
         \multicolumn{8}{c}{\textbf{Entregável 5: Integração e Validação (17/06/2026)}} \\
         \midrule
-        M4.1 & Conexão final do sistema e montagem & 10 & 04/06 & 10/06 & Todos & NAS montado (Hardware) & M2.1, M3.3 \\
-        M4.2 & Testes de estresse integrados e ajustes finais & 15 & 11/06 & 17/06 & Todos & Relatório de validação & M4.1, M2.3 \\
-        M5.1 & Redação e revisão da documentação final & 15 & 11/06 & 17/06 & Todos & Documento finalizado & M4.2 \\
-        
-        \bottomrule
-        \multicolumn{8}{l}{\scriptsize *Duração em horas já contempla a superestimativa de $30$\% exigida.}
-    \end{tabularx}
-\end{table}
+        M4.1 & Montagem do sistema de arrefecimento ativo & 8 & 04/06 & 08/06 & Gabriel & Ventoinhas com controle PWM & M1.1 \\
+        M4.2 & Organização dos componentes na \textit{case} & 7 & 08/06 & 11/06 & Marco & NAS montado fisicamente & M3.1, M4.1 \\
+        M4.3 & Testes de estresse integrados & 9 & 11/06 & 14/06 & Todos & Relatório de testes & M4.2 \\
+        M4.4 & Validação de tolerância a falhas (simulação de queda de energia) & 6 & 11/06 & 14/06 & Todos & Relatório de validação & M2.5, M4.2 \\
+        M4.5 & Conexão de atuadores para alertas de sistema & 7 & 09/06 & 13/06 & Gabriel & Alertas funcionais & M3.2 \\
+        M4.6 & Redação e revisão da documentação final & 12 & 13/06 & 17/06 & Todos & Documento finalizado & M4.3, M4.4 \\
+
+\end{xltabular}
+\normalsize
 
 \subsection{Resumo de Horas do Projeto}
 A tabela a seguir consolida o esforço estimado em horas para cada membro da equipe, garantindo a distribuição equilibrada do trabalho. Tarefas conjuntas tiveram suas horas divididas igualmente.
@@ -343,11 +360,11 @@ A tabela a seguir consolida o esforço estimado em horas para cada membro da equ
         \toprule
         \textbf{Membro da Equipe} & \textbf{Horas Estimadas (+30\% margem)} \\
         \midrule
-        Fernando Frare Vieira & 69.3 \\
-        Gabriel Affonso Borges Caballero & 69.3 \\
-        Marco Vieira Busetti & 69.4 \\
+        Fernando Frare Vieira & 71.0 \\
+        Gabriel Affonso Borges Caballero & 71.0 \\
+        Marco Vieira Busetti & 71.0 \\
         \midrule
-        \textbf{Total Estimado para o Projeto} & \textbf{208 horas} \\
+        \textbf{Total Estimado para o Projeto} & \textbf{213 horas} \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -359,54 +376,72 @@ Para melhor visualização do fluxo de trabalho e do caminho crítico do projeto
     \centering
     \vspace{1em}
     \begin{tikzpicture}[
-        x=1.75cm, y=1.2cm, % Escala do grid (X e Y) para caber na página
-        tarefa/.style={rectangle, draw, rounded corners, text centered, minimum width=1.1cm, minimum height=0.6cm, fill=blue!10, font=\bfseries\small},
+        x=1.4cm, y=1.0cm,
+        tarefa/.style={rectangle, draw, rounded corners, text centered, minimum width=1.0cm, minimum height=0.5cm, fill=blue!10, font=\bfseries\scriptsize},
         seta/.style={->, >=stealth, thick, color=gray!80}
         ]
-        
-        % Posicionamento manual em Grid (X, Y) garantindo 100% de planaridade
-        \node[tarefa] (m01) at (0, -2) {M0.1};
-        \node[tarefa] (m11) at (0, 0) {M1.1};
-        
-        \node[tarefa] (m21) at (1.5, 2.5) {M2.1};
-        \node[tarefa] (m32) at (1.5, 1) {M3.2};
-        \node[tarefa] (m12) at (1.5, 0) {M1.2};
-        
-        \node[tarefa] (m13) at (3, -1.2) {M1.3};
-        \node[tarefa] (m22) at (3, 0) {M2.2};
-        
-        \node[tarefa] (m31) at (4.5, 0) {M3.1};
-        \node[tarefa] (m23) at (4.5, -2) {M2.3};
-        
-        \node[tarefa] (m33) at (5.5, 1) {M3.3};
-        
-        \node[tarefa] (m41) at (6.5, 2.5) {M4.1};
-        
-        \node[tarefa] (m42) at (7.5, 0) {M4.2};
-        \node[tarefa] (m51) at (8.5, 0) {M5.1};
-        
-        % Desenhando as arestas com curvas suaves (Bezier de saída 0º e entrada 180º)
-        \path[seta] (m11) edge[out=0, in=180] (m21);
-        \path[seta] (m11) edge[out=0, in=180] (m32);
-        \path[seta] (m11) edge[out=0, in=180] (m12);
-        
-        \path[seta] (m12) edge[out=0, in=180] (m22);
+
+        % Entregável 2
+        \node[tarefa] (m11) at (0, 2) {M1.1};
+        \node[tarefa] (m12) at (0, -1.5) {M1.2};
+        \node[tarefa] (m13) at (1.2, -1.5) {M1.3};
+        \node[tarefa] (m14) at (2.4, 0) {M1.4};
+        \node[tarefa] (m15) at (3.6, -1) {M1.5};
+
+        % Entregável 3
+        \node[tarefa] (m21) at (3.6, 1) {M2.1};
+        \node[tarefa] (m22) at (4.8, 1) {M2.2};
+        \node[tarefa] (m23) at (4.8, -1) {M2.3};
+        \node[tarefa] (m24) at (3.6, 3) {M2.4};
+        \node[tarefa] (m25) at (4.8, 3) {M2.5};
+
+        % Entregável 4
+        \node[tarefa] (m31) at (6, 2) {M3.1};
+        \node[tarefa] (m32) at (6, -1) {M3.2};
+        \node[tarefa] (m33) at (6, -2.5) {M3.3};
+
+        % Entregável 5
+        \node[tarefa] (m41) at (7.2, 1) {M4.1};
+        \node[tarefa] (m45) at (7.2, -1) {M4.5};
+        \node[tarefa] (m42) at (8.4, 2) {M4.2};
+        \node[tarefa] (m43) at (9.6, 1) {M4.3};
+        \node[tarefa] (m44) at (9.6, 3) {M4.4};
+        \node[tarefa] (m46) at (10.8, 2) {M4.6};
+
+        % Arestas — Entregável 2
         \path[seta] (m12) edge[out=0, in=180] (m13);
-        
-        \path[seta] (m22) edge[out=0, in=180] (m31);
-        \path[seta] (m22) edge[out=0, in=180] (m23);
-        
-        \path[seta] (m32) edge[out=0, in=180] (m33);
-        \path[seta] (m31) edge[out=0, in=180] (m33);
-        
-        \path[seta] (m21) edge[out=0, in=180] (m41);
-        \path[seta] (m33) edge[out=0, in=180] (m41);
-        
+        \path[seta] (m11) edge[out=0, in=180] (m14);
+        \path[seta] (m13) edge[out=0, in=180] (m14);
+        \path[seta] (m14) edge[out=0, in=180] (m15);
+
+        % Arestas — Entregável 2 → 3
+        \path[seta] (m14) edge[out=0, in=180] (m21);
+        \path[seta] (m11) edge[out=30, in=180] (m24);
+        \path[seta] (m15) edge[out=0, in=180] (m23);
+
+        % Arestas — Entregável 3
+        \path[seta] (m21) edge[out=0, in=180] (m22);
+        \path[seta] (m24) edge[out=0, in=180] (m25);
+
+        % Arestas — Entregável 3 → 4
+        \path[seta] (m11) edge[out=20, in=160] (m31);
+        \path[seta] (m23) edge[out=0, in=180] (m32);
+        \path[seta] (m15) edge[out=-20, in=180] (m33);
+
+        % Arestas — Entregável 4 → 5
+        \path[seta] (m31) edge[out=0, in=180] (m42);
         \path[seta] (m41) edge[out=0, in=180] (m42);
-        \path[seta] (m23) edge[out=0, in=180] (m42);
-        
-        \path[seta] (m42) edge[out=0, in=180] (m51);
-        
+        \path[seta] (m32) edge[out=0, in=180] (m45);
+
+        % Arestas — Entregável 3 → 5
+        \path[seta] (m25) edge[out=0, in=180] (m44);
+
+        % Arestas — Entregável 5
+        \path[seta] (m42) edge[out=0, in=180] (m43);
+        \path[seta] (m42) edge[out=30, in=180] (m44);
+        \path[seta] (m43) edge[out=0, in=180] (m46);
+        \path[seta] (m44) edge[out=0, in=180] (m46);
+
     \end{tikzpicture}
     \caption{Grafo de Dependências das Tarefas}
 
