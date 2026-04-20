@@ -154,7 +154,16 @@ Do ponto de vista funcional, o sistema provê ao usuário uma plataforma central
     \item \textbf{RNF07 - Arquitetura de Micro-Backend} A camada de gerenciamento deve utilizar um micro-backend de baixo \textit{overhead} (custo computacional adicional além da tarefa principal) (ex: Go ou Python), garantindo tempos de resposta inferiores a 200ms para requisições de status do sistema.
 \end{itemize}
 
-
+\subsection{Anti-Requisitos (AR)}
+Os itens a seguir delimitam explicitamente o que \textbf{não faz parte} do escopo deste projeto, evitando expectativas incompatíveis com as limitações do hardware escolhido e com os objetivos da disciplina.
+\begin{itemize}
+    \item \textbf{AR01 - Transcodificação de Mídia em Tempo Real:} O sistema não realizará conversão de formatos de vídeo ou áudio em tempo real (\textit{transcoding}). O Raspberry Pi 5 não possui hardware dedicado para essa tarefa, e a tentativa de realizá-la por software consumiria toda a capacidade de CPU, comprometendo os demais serviços.
+    \item \textbf{AR02 - Sincronização com Nuvem:} O sistema não incluirá integração nativa com serviços de armazenamento em nuvem (ex: Google Drive, Dropbox, OneDrive). O foco do projeto é a soberania local dos dados; integrações externas podem ser adicionadas pelo usuário via contêineres, mas não serão desenvolvidas nem suportadas pela equipe.
+    \item \textbf{AR03 - Criptografia Total de Disco:} O sistema não implementará criptografia completa de disco (\textit{full-disk encryption}). A sobrecarga de criptografia/descriptografia por software na arquitetura ARM reduziria significativamente o \textit{throughput} de leitura e escrita, inviabilizando o uso como servidor de arquivos.
+    \item \textbf{AR04 - Acesso Externo Automático (WAN):} O sistema não fornecerá exposição automática à internet (ex: configuração automática de \textit{port forwarding}, DDNS ou túneis). O acesso remoto via rede externa é de responsabilidade do usuário, que deverá configurar sua própria VPN ou redirecionamento de portas no roteador.
+    \item \textbf{AR05 - Expansão Além de 4 Discos:} O sistema não suportará mais de 4 discos rígidos de 2.5". A limitação é imposta pelo barramento PCIe da Raspberry Pi 5 e pela controladora SATA utilizada; expandir além disso exigiria hardware adicional fora do escopo.
+    \item \textbf{AR06 - Interface Gráfica Local (Desktop):} O sistema operacional não contará com ambiente gráfico (desktop) instalado no próprio NAS. Toda a interação com o usuário será feita via interface web ou SSH remoto, mantendo o consumo de recursos do SO no mínimo.
+\end{itemize}
 
 
 % --- SEÇÃO: INTEGRAÇÃO ---
