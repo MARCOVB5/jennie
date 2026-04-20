@@ -293,33 +293,38 @@ A Tabela \ref{tab:cronograma} detalha as atividades, prazos, responsáveis e os 
         \toprule
         \textbf{ID} & \textbf{Atividade} & \textbf{Dur. (h)*} & \textbf{Início} & \textbf{Fim} & \textbf{Resp.} & \textbf{Entregável (Produto)} & \textbf{Dep.} \\
         \midrule
-        
-        \multicolumn{8}{c}{\textbf{Marco 1: Sistema Base e Interface (29/04/2026)}} \\
+
+        \multicolumn{8}{c}{\textbf{Entregável 1: Site/Blog de Acompanhamento (08/04/2026)}} \\
+        \midrule
+        M0.1 & Criação do site/blog e publicação do plano de projeto & 8 & 25/03 & 08/04 & Todos & Site com documentação inicial & - \\
+
+        \midrule
+        \multicolumn{8}{c}{\textbf{Entregável 2: Sistema Base e Interface (29/04/2026)}} \\
         \midrule
         M1.1 & Aquisição e testes básicos de hardware & 15 & 01/04 & 10/04 & Marco & Componentes validados & - \\
         M1.2 & Compilação e configuração inicial do SO (Sistema Operacional) & 20 & 11/04 & 20/04 & Fernando & Imagem do SO pronta & M1.1 \\
         M1.3 & Interface Raspberry Pi x Usuário (SSH/Web) & 15 & 21/04 & 29/04 & Gabriel & Acesso remoto funcional & M1.2 \\
         
         \midrule
-        \multicolumn{8}{c}{\textbf{Marco 2: Serviços e Energia (20/05/2026)}} \\
+        \multicolumn{8}{c}{\textbf{Entregável 3: Serviços e Energia (20/05/2026)}} \\
         \midrule
         M2.1 & Projeto e montagem do circuito No-Break & 25 & 30/04 & 10/05 & Gabriel & PCB (\textit{Printed Circuit Board})/Circuito funcional & M1.1 \\
         M2.2 & Serviço de I/O, rede e monitoramento & 20 & 30/04 & 12/05 & Fernando & Serviços operacionais & M1.2 \\
         M2.3 & Configurar sessões multiusuário para o SO & 15 & 13/05 & 20/05 & Fernando & Permissões configuradas & M2.2 \\
         
         \midrule
-        \multicolumn{8}{c}{\textbf{Marco 3: Estrutura Física e Arrefecimento (03/06/2026)}} \\
+        \multicolumn{8}{c}{\textbf{Entregável 4: Estrutura Física e Arrefecimento (03/06/2026)}} \\
         \midrule
         M3.1 & Montagem do circuito de dissipação de calor & 15 & 21/05 & 27/05 & Gabriel & Fans com controle PWM & M2.2 \\
         M3.2 & Modelagem e impressão do \textit{case} 3D e visor & 25 & 21/05 & 31/05 & Marco & Peças plásticas impressas & M1.1 \\
         M3.3 & Organizar sistema no \textit{case} (pré-montagem) & 10 & 01/06 & 03/06 & Marco & Acomodação validada & M3.1, M3.2 \\
         
         \midrule
-        \multicolumn{8}{c}{\textbf{Marco 4 e Conclusão: Integração e Validação (24/06/2026)}} \\
+        \multicolumn{8}{c}{\textbf{Entregável 5: Integração e Validação (17/06/2026)}} \\
         \midrule
         M4.1 & Conexão final do sistema e montagem & 10 & 04/06 & 10/06 & Todos & NAS montado (Hardware) & M2.1, M3.3 \\
         M4.2 & Testes de estresse integrados e ajustes finais & 15 & 11/06 & 17/06 & Todos & Relatório de validação & M4.1, M2.3 \\
-        M5.1 & Redação e revisão da documentação final & 15 & 18/06 & 24/06 & Todos & Documento finalizado & M4.2 \\
+        M5.1 & Redação e revisão da documentação final & 15 & 11/06 & 17/06 & Todos & Documento finalizado & M4.2 \\
         
         \bottomrule
         \multicolumn{8}{l}{\scriptsize *Duração em horas já contempla a superestimativa de $30$\% exigida.}
@@ -338,11 +343,11 @@ A tabela a seguir consolida o esforço estimado em horas para cada membro da equ
         \toprule
         \textbf{Membro da Equipe} & \textbf{Horas Estimadas (+30\% margem)} \\
         \midrule
-        Fernando Frare Vieira & 68.3 \\
-        Gabriel Affonso Borges Caballero & 68.3 \\
-        Marco Vieira Busetti & 63.4 \\
+        Fernando Frare Vieira & 69.3 \\
+        Gabriel Affonso Borges Caballero & 69.3 \\
+        Marco Vieira Busetti & 69.4 \\
         \midrule
-        \textbf{Total Estimado para o Projeto} & \textbf{200 horas} \\
+        \textbf{Total Estimado para o Projeto} & \textbf{208 horas} \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -360,6 +365,7 @@ Para melhor visualização do fluxo de trabalho e do caminho crítico do projeto
         ]
         
         % Posicionamento manual em Grid (X, Y) garantindo 100% de planaridade
+        \node[tarefa] (m01) at (0, -2) {M0.1};
         \node[tarefa] (m11) at (0, 0) {M1.1};
         
         \node[tarefa] (m21) at (1.5, 2.5) {M2.1};
