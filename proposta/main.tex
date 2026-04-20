@@ -204,9 +204,9 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
 \begin{itemize}  
     \item \textbf{Software:}  
     \begin{itemize}  
-        \item Imagem Linux/BSD (Kernel ARM64 customizado).
+        \item Imagem Linux (Kernel ARM64 customizado).
         \item Módulos de rede e compartilhamento (e.g. OpenSSH).
-        \item Ferramentas de gerenciamento de disco (mdadm (gerenciador de arranjos RAID por software), LVM (\textit{Logical Volume Manager} --- gerenciador de volumes lógicos) ou utilitários ext4/Btrfs).
+        \item Ferramentas de gerenciamento de disco, LVM (\textit{Logical Volume Manager} --- gerenciador de volumes lógicos) e utilitários ext4).
         \item Interface Usuário-Servidor.
     \end{itemize}  
     \item \textbf{Hardware:}  
@@ -256,7 +256,7 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
 
     Raspberry Pi 5 (2\,GB de RAM) não suportar carga multiusuário com contêineres e serviços simultâneos & 3 & 5 & \textbf{15*} & Dimensionar \textit{swap} em disco, limitar recursos por contêiner via \textit{cgroups} e realizar testes de carga antecipados. Se inviável, migrar para o modelo de 4\,GB. & 2 & 3 \\
 
-    Largura de banda PCIe compartilhada entre os discos ser insuficiente para I/O simultâneo & 3 & 4 & 12 & Realizar \textit{benchmarks} de \textit{throughput} com múltiplos discos no Marco~1. Avaliar a adoção de RAID~1 (espelhamento) em vez de RAID~5 para reduzir \textit{overhead} de paridade. & 2 & 3 \\
+    Largura de banda PCIe compartilhada entre os discos ser insuficiente para I/O simultâneo & 3 & 4 & 12 & Realizar \textit{benchmarks} com múltiplos discos no Entregável 3 e limitar usuários simultâneos conforme & 2 & 3 \\
 
     Incompatibilidade do \textit{kernel} Gentoo customizado com os drivers do HAT PCIe-SATA & 3 & 5 & \textbf{15*} & Validar a compatibilidade do HAT com o \textit{kernel} compilado. Manter uma imagem Raspberry Pi OS como segunda opção. & 1 & 5 \\
 
@@ -279,14 +279,14 @@ O ecossistema de hardware contempla os elementos lógicos e de potência estrutu
 % --- SEÇÃO: CRONOGRAMA ---  
 \section{Cronograma}  
 
-Para a execução deste projeto e alinhamento com as avaliações da disciplina, as atividades foram estruturadas com base em entregas parciais (Marcos do Projeto). Todas as estimativas de tempo já contemplam uma margem de segurança de aproximadamente 30\% para mitigar eventuais imprevistos apontados na Análise de Riscos.
+Para a execução deste projeto e alinhamento com as avaliações da disciplina, as atividades foram estruturadas com base em entregas parciais (Entregáveis do Projeto). Todas as estimativas de tempo já contemplam uma margem de segurança de aproximadamente 30\% para mitigar eventuais imprevistos apontados na Análise de Riscos.
 
-A Tabela \ref{tab:cronograma} detalha as atividades, prazos, responsáveis e os produtos esperados para cada Marco. A coluna de dependências (Dep.) indica quais tarefas precisam ser concluídas antes do início da atividade em questão.
+A Tabela \ref{tab:cronograma} detalha as atividades, prazos, responsáveis e os produtos esperados para cada Entregável. A coluna de dependências (Dep.) indica quais tarefas precisam ser concluídas antes do início da atividade em questão.
 
 \renewcommand{\arraystretch}{1.3}
 \footnotesize
 \begin{xltabular}{\textwidth}{@{} l >{\raggedright\arraybackslash}X c c c c >{\raggedright\arraybackslash}X l @{}}
-    \caption{Cronograma Detalhado de Atividades por Marcos} \label{tab:cronograma} \\
+    \caption{Cronograma Detalhado de Atividades por Entregáveis} \label{tab:cronograma} \\
     \toprule
     \textbf{ID} & \textbf{Atividade} & \textbf{Dur. (h)*} & \textbf{Início} & \textbf{Fim} & \textbf{Resp.} & \textbf{Entregável (Produto)} & \textbf{Dep.} \\
     \midrule
