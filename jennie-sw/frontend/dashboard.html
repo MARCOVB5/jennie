@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Projeto Jennie</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="brand">Jennie NAS</div>
+        <div class="nav-links">
+            <span id="userGreeting">Olá, Admin</span>
+            <button id="logoutBtn" class="logout-btn">Sair</button>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <div class="card">
+            <h3>Temperatura CPU</h3>
+            <div class="metric" id="cpuTemp">45.0°C</div>
+        </div>
+        
+        <div class="card">
+            <h3>Status Sistema</h3>
+            <div class="metric" id="batteryStatus">Ativo</div>
+            <div class="metric-detail" style="margin-top: 5px;">Conectado à Rede</div>
+        </div>
+
+        <div class="card">
+            <h3>Memória RAM</h3>
+            <div class="metric" id="ramUsage">450 MB</div>
+            <div class="metric-detail" id="ramTotal" style="margin-top: 5px;">de 2.0 GB</div>
+        </div>
+
+        <div class="card full-width">
+            <h3>Armazenamento</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 45%;"></div>
+            </div>
+            <div class="metric-detail">4.5 TB / 10 TB Usados</div>
+        </div>
+
+        <div class="card full-width">
+            <div class="file-manager-header">
+                <h3>Meus Arquivos</h3>
+                <input type="file" id="fileUploadInput" style="display: none;">
+                <button class="btn-upload" onclick="document.getElementById('fileUploadInput').click()">+ Enviar Arquivo</button>
+            </div>
+            <div id="fileListContainer">
+                <p style="color: #a0a0a0; margin-top: 15px;">Carregando arquivos...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

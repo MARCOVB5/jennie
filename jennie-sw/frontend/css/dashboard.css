@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.navbar {
+    background-color: #1e1e1e;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.brand {
+    color: #4CAF50;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links span {
+    color: #cfcfcf;
+    font-size: 14px;
+}
+
+.logout-btn {
+    background-color: #ff5252;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #e04343;
+}
+
+.dashboard-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card.full-width {
+    grid-column: 1 / -1;
+}
+
+.card h3 {
+    color: #a0a0a0;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.metric {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.metric-detail {
+    font-size: 14px;
+    color: #a0a0a0;
+    margin-top: 15px;
+    text-align: right;
+}
+
+.progress-bar {
+    background-color: #2a2a2a;
+    border-radius: 5px;
+    height: 12px;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-fill {
+    background-color: #4CAF50;
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+
+.file-manager-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.btn-upload {
+    background-color: #4CAF50; /* Combinando com o verde da sua marca */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-upload:hover {
+    background-color: #45a049;
+}
+
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    text-align: left;
+}
+
+.file-table th {
+    border-bottom: 2px solid #333;
+    padding: 10px 5px;
+    color: #a0a0a0;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.file-table td {
+    border-bottom: 1px solid #2a2a2a;
+    padding: 10px 5px;
+    color: #cfcfcf;
+}
+
+.file-table tr:hover {
+    background-color: #2a2a2a;
+}
+
+.btn-acao {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #007BFF;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-acao:hover {
+    background: #0056b3;
+}
+
+.file-table th:last-child,
+.file-table td:last-child {
+    text-align: right;
+}
