@@ -17,37 +17,77 @@ type InfoArquivo struct {
 	Data     string `json:"data"`
 }
 
-func handleListarArquivos(w http.ResponseWriter, r *http.Request) {
+// Função para fazer a configuração do CORS
+func configurarCors(w http.ResponseWriter, r *http.Request, metodos string) bool {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", metodos+", OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 
 	if r.Method == "OPTIONS" {
-		return
+		w.WriteHeader(http.StatusOK)
+		return false
 	}
 
+	return true
+}
+
+// Função para verificar se o token e o usuário existem e estão corretos
+func verificarTokenUsuario(w http.ResponseWriter, r *http.Request) (string, bool) {
+	// Tenta primeiro pegar do cabeçalho
 	token := r.Header.Get("Authorization")
+
+	// Se não achar no cabeçalho, procurar na url
+	if token == "" {
+		token = r.URL.Query().Get("token")
+	}
+
+	// Erro, token não existe
 	if token == "" {
 		http.Error(w, `{"erro": "Acesso negado"}`, http.StatusUnauthorized)
-		return
+		return "", false
 	}
 
-	// Extrai o nome do usuário do Token (tira o "token_sessao_")
 	usuario := strings.TrimPrefix(token, "token_sessao_")
-	if usuario == token {
+	if usuario == token || usuario == "" {
 		http.Error(w, `{"erro": "Token inválido"}`, http.StatusUnauthorized)
-		return
+		return "", false
 	}
 
+	return usuario, true
+}
+
+// Método para capturar o subCaminho através da URL e verifica se está acontecendo uma tentativa de voltar pastas
+func capturaVerificaSubCaminho(w http.ResponseWriter, r *http.Request) (string, bool) {
 	subCaminho := r.URL.Query().Get("path")
 	if subCaminho == "" {
 		subCaminho = "/"
 	}
 
-	// Trava de segurança
+	// Trava de segurança para não voltar pastas
 	if strings.Contains(subCaminho, "..") {
 		http.Error(w, `{"erro": "Caminho inválido ou acesso negado"}`, http.StatusForbidden)
+		return "", false
+	}
+
+	return subCaminho, true
+}
+
+func handleListarArquivos(w http.ResponseWriter, r *http.Request) {
+	// Configuração CORS
+	if !configurarCors(w, r, "GET") {
+		return
+	}
+
+	// Verifica se o token e o usuario existem
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
+		return
+	}
+
+	// Pega e verifica o subCaminho
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
 		return
 	}
 
@@ -91,30 +131,15 @@ func handleListarArquivos(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDownloadArquivo(w http.ResponseWriter, r *http.Request) {
-	// Recebe o token através de url
-	token := r.URL.Query().Get("token")
-	if token == "" {
-		http.Error(w, "Acesso negado", http.StatusUnauthorized)
+	// Verifica se o token e o usuario existem
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
 		return
 	}
 
-	// Captura o usuario pelo token
-	usuario := strings.TrimPrefix(token, "token_sessao_")
-	if usuario == token {
-		http.Error(w, "Token inválido", http.StatusUnauthorized)
-		return
-	}
-
-	// Recebe o caminho da pasta através da url]
-	subCaminho := r.URL.Query().Get("path")
-	if subCaminho == "" {
-		http.Error(w, "Caminho do arquivo não especificado", http.StatusBadRequest)
-		return
-	}
-
-	// Verifica se não estão enviando ".." para acessar pastas anteriores
-	if strings.Contains(subCaminho, "..") {
-		http.Error(w, "Caminho inválido ou acesso negado", http.StatusForbidden)
+	// Pega e verifica o subCaminho
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
 		return
 	}
 
@@ -139,78 +164,225 @@ func handleDownloadArquivo(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUploadArquivo(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-
-	if r.Method == "OPTIONS" {
+	// Configuração CORS
+	if !configurarCors(w, r, "POST") {
 		return
 	}
 
-	// Verifica o token
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		http.Error(w, `{"erro": "Acesso negado"}`, http.StatusUnauthorized)
+	// Verifica se o token e o usuario existem
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
 		return
 	}
 
-	// Captura usuario
-	usuario := strings.TrimPrefix(token, "token_sessao_")
-	if usuario == token {
-		http.Error(w, `{"erro": "Token inválido"}`, http.StatusUnauthorized)
+	// Pega e verifica o subCaminho
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
 		return
 	}
 
-	// Limita o processamento da ram a 10mb,
-	// O resto vai ser processado direto pro disco, sob demanda
-	err := r.ParseMultipartForm(10 << 20)
+	// Cria um leitor da rede direto para o disco, sempre precisar passar pela RAM
+	reader, err := r.MultipartReader()
 	if err != nil {
-		http.Error(w, `{"erro": "Arquivo grande demais ou corrompido"}`, http.StatusBadRequest)
+		http.Error(w, `{"erro": "Falha ao iniciar leitura do upload"}`, http.StatusBadRequest)
 		return
 	}
 
-	// Pega o arquivo enviado pelo frontend
-	file, handler, err := r.FormFile("arquivo")
-	if err != nil {
-		http.Error(w, `{"erro": "Nenhum arquivo encontrado na requisição"}`, http.StatusBadRequest)
-		return
-	}
+	// Loop para ler as partes da requisição HTTP
+	for {
+		parte, err := reader.NextPart()
+		if err == io.EOF {
+			break // Chegou no fim do upload
+		}
+		if err != nil {
+			http.Error(w, `{"erro": "Erro durante a transferência"}`, http.StatusInternalServerError)
+			return
+		}
 
-	defer file.Close()
+		// Se a parte atual for um arquivo, nós a salvamos
+		if parte.FileName() != "" {
+			caminhoBase := fmt.Sprintf("/mnt/nas/vertigo/%s", usuario)
+			caminhoArquivo := filepath.Join(caminhoBase, subCaminho, parte.FileName())
 
-	// Pega em qual pasta o arquivo vai ser salvo
-	subCaminho := r.URL.Query().Get("path")
-	if subCaminho == "" {
-		subCaminho = "/"
-	}
+			// Cria o arquivo final no disco
+			arquivoDestino, err := os.Create(caminhoArquivo)
+			if err != nil {
+				http.Error(w, `{"erro": "Falha ao criar arquivo no disco"}`, http.StatusInternalServerError)
+				return
+			}
 
-	// Proibe ".." para evitar o acesso a pastas anteriores
-	if strings.Contains(subCaminho, "..") {
-		http.Error(w, `{"erro": "Caminho inválido"}`, http.StatusForbidden)
-		return
-	}
+			// io.Copy puxa os bytes da parte (rede) e joga no arquivoDestino (HD)
+			// Ele faz isso em blocos de 32KB, minimizando o uso de ram.
+			_, err = io.Copy(arquivoDestino, parte)
 
-	// Caminho para criar o arquivo
-	caminhoBase := fmt.Sprintf("/mnt/nas/vertigo/%s", usuario)
-	caminhoArquivo := filepath.Join(caminhoBase, subCaminho, handler.Filename)
+			// Fecha o arquivo manualmente após a cópia
+			arquivoDestino.Close()
 
-	// Cria um arquivo vazio no HD
-	arquivoDestino, err := os.Create(caminhoArquivo)
-	if err != nil {
-		http.Error(w, `{"erro": "Falha ao criar arquivo no disco"}`, http.StatusInternalServerError)
-		return
-	}
-	defer arquivoDestino.Close()
+			if err != nil {
+				http.Error(w, `{"erro": "Falha ao gravar os dados no disco"}`, http.StatusInternalServerError)
+				return
+			}
 
-	// Conecta o arquivo de rede direto no arquivo do HD
-	_, err = io.Copy(arquivoDestino, file)
-	if err != nil {
-		http.Error(w, `{"erro": "Falha ao gravar os dados do arquivo"}`, http.StatusInternalServerError)
-		return
+			break
+		}
 	}
 
 	// Resposta de sucesso
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"sucesso": true, "mensagem": "Upload finalizado!"}`))
+}
+
+func handleExcluirArquivo(w http.ResponseWriter, r *http.Request) {
+	// Configuração CORS
+	if !configurarCors(w, r, "DELETE") {
+		return
+	}
+
+	// Verifica se o token e o usuario existem
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
+		return
+	}
+
+	// Pega e verifica o subCaminho
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
+		return
+	}
+
+	// Impede de excluir a raiz
+	if subCaminho == "/" {
+		http.Error(w, `{"erro": "Ação proibida: Não é possível excluir o diretório raiz"}`, http.StatusForbidden)
+		return
+	}
+
+	// Diretorio da partição do usuário
+	caminhoBase := fmt.Sprintf("/mnt/nas/vertigo/%s", usuario)
+	caminhoCompleto := filepath.Join(caminhoBase, subCaminho)
+
+	// Remove o arquivo ou pasta
+	err := os.RemoveAll(caminhoCompleto)
+	if err != nil {
+		http.Error(w, `{"erro": "Falha ao excluir o arquivo ou pasta"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Retorna ok para o frontend
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"sucesso": true, "mensagem": "Excluído com sucesso!"}`))
+}
+
+func handleCriarPasta(w http.ResponseWriter, r *http.Request) {
+	// Configuração CORS
+	if !configurarCors(w, r, "POST") {
+		return
+	}
+
+	// Verifica se o token e o usuario existem
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
+		return
+	}
+
+	// Pega e verifica o subCaminho
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
+		return
+	}
+
+	// Monta o caminho para acessar o servidor
+	caminhoBase := fmt.Sprintf("/mnt/nas/vertigo/%s", usuario)
+	caminhoCompleto := filepath.Join(caminhoBase, subCaminho)
+
+	// Cria a nova pasta
+	err := os.MkdirAll(caminhoCompleto, 0755)
+	if err != nil {
+		http.Error(w, `{"erro": "Falha ao criar a pasta no disco"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Retorna para o front end
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"sucesso": true, "mensagem": "Pasta criada com sucesso!"}`))
+}
+
+// Método para renomear arquivo
+func handleRenomearArquivo(w http.ResponseWriter, r *http.Request) {
+	// Configuração CORS
+	if !configurarCors(w, r, "POST") {
+		return
+	}
+
+	// Verifica token
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
+		return
+	}
+
+	// Pega o subcaminho e fazer verificaçãoo para não voltar pastas
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
+		return
+	}
+
+	// Verificação para não deixar renomear a pasta raiz
+	if subCaminho == "/" {
+		http.Error(w, `{"erro": "Não é possível renomear o diretório raiz"}`, http.StatusForbidden)
+		return
+	}
+
+	// Pega o novo nome desejado via URL
+	novoNome := r.URL.Query().Get("novoNome")
+
+	// Verificações no novo nome
+	if novoNome == "" || strings.Contains(novoNome, "..") || strings.Contains(novoNome, "/") {
+		http.Error(w, `{"erro": "Novo nome inválido"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Monta o caminho completo
+	caminhoBase := fmt.Sprintf("/mnt/nas/vertigo/%s", usuario)
+	caminhoAntigo := filepath.Join(caminhoBase, subCaminho)
+
+	// Pega só a pasta onde o arquivo está, e junta com o novo nome
+	diretorioAtual := filepath.Dir(caminhoAntigo)
+	caminhoNovo := filepath.Join(diretorioAtual, novoNome)
+
+	// Renomeia / Move
+	err := os.Rename(caminhoAntigo, caminhoNovo)
+	if err != nil {
+		http.Error(w, `{"erro": "Falha ao renomear arquivo ou pasta"}`, http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"sucesso": true, "mensagem": "Renomeado com sucesso!"}`))
+}
+
+// Método para fazer a visualização de um arquivo
+func handleVisualizarArquivo(w http.ResponseWriter, r *http.Request) {
+	// Verifica token
+	usuario, ok := verificarTokenUsuario(w, r)
+	if !ok {
+		return
+	}
+
+	// Pega o subcaminho e fazer verificaçãoo para não voltar pastas
+	subCaminho, ok := capturaVerificaSubCaminho(w, r)
+	if !ok {
+		return
+	}
+
+	// Monta o caminho do arquivo
+	caminhoBase := fmt.Sprintf("/mnt/nas/vertigo/%s", usuario)
+	caminhoArquivo := filepath.Join(caminhoBase, subCaminho)
+
+	// Verifica se existe
+	info, err := os.Stat(caminhoArquivo)
+	if err != nil || info.IsDir() {
+		http.Error(w, "Arquivo não encontrado", http.StatusNotFound)
+		return
+	}
+
+	http.ServeFile(w, r, caminhoArquivo)
 }

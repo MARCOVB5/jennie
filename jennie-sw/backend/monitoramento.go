@@ -22,8 +22,9 @@ type DadosSistema struct {
 // Função que vai ser chamado quando a interface web fazer a requisção. w é a resposta e R é o que a interface web enviou
 func handleStatus(w http.ResponseWriter, r *http.Request) {
 	// Libera comunicação
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
+	if !configurarCors(w, r, "GET") {
+		return
+	}
 
 	// Chama o bash e trata os dados
 	cmd := exec.Command("bash", "./coleta_dados.sh")

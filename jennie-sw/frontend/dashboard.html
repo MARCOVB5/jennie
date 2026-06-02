@@ -43,13 +43,28 @@
 
         <div class="card full-width">
             <div class="file-manager-header">
-                <h3>Meus Arquivos</h3>
-                <input type="file" id="fileUploadInput" style="display: none;">
-                <button class="btn-upload" onclick="document.getElementById('fileUploadInput').click()">+ Enviar Arquivo</button>
+                <div id="breadcrumbs" style="font-size: 18px; display: flex; align-items: center; gap: 8px;"></div>
+                <div>
+                    <button class="btn-acao" onclick="criarNovaPasta()" style="background-color: #007BFF; margin-right: 10px; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">+ Nova Pasta</button>
+                    
+                    <input type="file" id="fileUploadInput" style="display: none;">
+                    <button class="btn-upload" onclick="document.getElementById('fileUploadInput').click()">+ Enviar Arquivo</button>
+                </div>
             </div>
+            
+            <div id="containerProgresso" style="display: none; margin-top: 10px; background: #e9ecef; border-radius: 4px; padding: 3px;">
+                <div id="barraProgresso" style="width: 0%; height: 10px; background: #28a745; border-radius: 4px; transition: width 0.2s;"></div>
+                <div id="textoProgresso" style="font-size: 12px; text-align: center; color: #333; margin-top: 2px;">0%</div>
+            </div>
+
             <div id="fileListContainer">
                 <p style="color: #a0a0a0; margin-top: 15px;">Carregando arquivos...</p>
             </div>
+        </div>
+
+        <div id="meuModal" class="modal-imagem">
+            <span class="fechar-modal" onclick="fecharVisualizador()">&times;</span>
+            <img class="modal-conteudo" id="imagemAmpliada">
         </div>
     </main>
 
