@@ -227,7 +227,7 @@ E se construirmos um sistema NAS com um Raspberry Pi 5?
 \frametitle{\textit{Case} do sistema}
 
 \begin{center}
-\includegraphics[width=0.9\textwidth]{img/nobreak3.png}
+\includegraphics[width=0.9\textwidth]{img/case.png}
 \end{center}
 
 \end{frame}
@@ -306,10 +306,66 @@ E se construirmos um sistema NAS com um Raspberry Pi 5?
 
 \section{Resultados}
 
+\begin{frame}
+\frametitle{Resultados}
+
+\begin{itemize}
+    \item Conexão entre redes diferentes bem sucedida.
+    \item Sistema multiusuário funcionando.
+    \item Consumo médio de $60$ Mb de RAM em IDLE e $120$ Mb durante transferência de arquivos.
+    \item Média de $4$ W de consumo em IDLE e $7$ W durante transferência de arquivos.
+    \item Média de $35^\circ$ C de temperatura da CPU.
+    \item Possível levantar diversos serviços.
+    \item No-break responsivo e funcional.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Fastfetch}
+
+\begin{center}
+\includegraphics[width=\textwidth]{img/fastfetch.png}
+\end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Consumo de energia}
+
+\begin{verbatim}
+localhost ~ # vcgencmd pmic_read_adc 
+...
+  VDD_CORE_A current(7)=0.51794000A 
+...
+  VDD_CORE_V volt(15)=0.75052430V 
+...
+     EXT5V_V volt(24)=4.94058000V 
+...
+localhost ~ # vcgencmd get_throttled 
+throttled=0x0 
+localhost ~ # 
+\end{verbatim}
+\end{frame}
 
 
 \section{Conclusões}
 
+\begin{frame}
+\frametitle{Conclusões}
 
+\begin{itemize}
+    \item O sistema serviu o propósito de ser um NAS de baixo custo e eficiente.
+    \item Margem para melhorias e adições.
+    \item Possível abertura para a rede externa?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Huge \textbf{Muito Obrigado!} \\
+\end{center}
+\end{frame}
 
 \end{document}
