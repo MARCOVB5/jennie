@@ -1,11 +1,9 @@
 \documentclass[14pt]{beamer} 
-
 \usepackage[utf8]{inputenc}
 \usepackage[portuguese]{babel}
 \usetheme{Madrid}
 \usecolortheme{default}
 \usepackage{ragged2e}
-
 \usepackage{array}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -31,8 +29,7 @@
 \usepackage{fancyhdr}
 \usepackage{stmaryrd}
 \usepackage{booktabs}
-
-
+\usetikzlibrary{automata, positioning, arrows.meta, fit, shapes.geometric, backgrounds}
 \definecolor{mygreen}{rgb}{0.1, 0.6, 0.1}
 
 \title{Jennie: um sistema NAS econômico,\\ seguro e eficiente}
@@ -117,6 +114,60 @@ E se construirmos um sistema NAS com um Raspberry Pi 5?
     \item Sistema de no-break construído do zero para \textit{graceful-shutdown}.
 \end{itemize}
 
+\end{frame}
+
+\begin{frame}{Arquitetura do Sistema}
+    \centering
+    \resizebox{\textwidth}{!}{
+    \begin{tikzpicture}[
+        >=stealth, 
+        auto,
+        font=\small,
+        user/.style={circle, draw, thick, fill=white, minimum size=1.2cm, align=center, font=\scriptsize},
+        web/.style={rectangle, rounded corners, draw, thick, fill=green!15, minimum width=2.2cm, minimum height=1.1cm, align=center},
+        hw/.style={rectangle, rounded corners, draw, thick, fill=blue!15, minimum width=1.8cm, minimum height=1.1cm, align=center},
+        disk/.style={cylinder, draw, thick, shape border rotate=90, aspect=0.25, fill=orange!15, minimum height=0.6cm, minimum width=1.3cm, align=center, font=\scriptsize},
+        nasbox/.style={rectangle, rounded corners, draw, dashed, thick, inner sep=12pt, fill=gray!5}
+    ]
+
+        \node[web] (web) {Dashboard\\Web};
+
+        \node[hw, right=1.8cm of web] (rpi) {RPi 5};
+        \node[hw, right=1.4cm of rpi] (hat) {SATA HAT};
+        \node[hw, above=1.3cm of rpi] (nobreak) {No-Break};
+
+        \node[disk, right=1.8cm of hat, yshift=1.3cm] (d1) {Disco 1};
+        \node[disk, below=0.4cm of d1] (d2) {Disco 2};
+        \node[disk, below=0.4cm of d2] (d3) {Disco 3};
+        \node[disk, below=0.4cm of d3] (d4) {Disco 4};
+
+        \node[user, left=2.8cm of web] (u2) {Usuário};
+        \node[user, above=0.4cm of u2] (u1) {Usuário};
+        \node[user, below=0.4cm of u2] (u3) {Usuário};
+
+
+        \begin{scope}[on background layer]
+            \node[nasbox, fit=(web) (rpi) (hat) (nobreak) (d1) (d4)] (nas) {};
+        \end{scope}
+
+
+        \draw[<->, thick] (u1.east) -- (web.west);
+        \draw[<->, thick] (u2.east) -- node[above, align=center, font=\scriptsize] {UP /DW} (web.west);
+        \draw[<->, thick] (u3.east) -- (web.west);
+
+        \draw[<->, thick] (web.east) -- node[above, font=\scriptsize] {Transferência} (rpi.west);
+        \draw[->, thick] (rpi.east) -- node[above, font=\scriptsize] {PCIe} (hat.west);
+
+        \draw[->, thick, densely dotted] (nobreak.south) -- node[left, font=\scriptsize] {Energia} (rpi.north);
+        \draw[->, thick, densely dotted] (nobreak.east) -| node[above, pos=0.25, font=\scriptsize] {Energia} (hat.north);
+
+        \draw[->, thick] (hat.east) |- node[above right, pos=0.85, font=\tiny] {} (d1.west);
+        \draw[->, thick] (hat.east) |- node[above right, pos=0.85, font=\tiny] {} (d2.west);
+        \draw[->, thick] (hat.east) |- node[above right, pos=0.85, font=\tiny] {} (d3.west);
+        \draw[->, thick] (hat.east) |- node[above right, pos=0.85, font=\tiny] {} (d4.west);
+
+    \end{tikzpicture}%
+    }
 \end{frame}
 
 \begin{frame}
@@ -226,14 +277,154 @@ E se construirmos um sistema NAS com um Raspberry Pi 5?
 \begin{frame}
 \frametitle{\textit{Case} do sistema}
 
-\begin{center}
-\includegraphics[width=0.4\textwidth]{img/case.png}
-\end{center}
+\begin{columns}[c] 
+    
+    \begin{column}{0.5\textwidth}
+        \centering
+        \includegraphics[width=0.85\textwidth]{img/case_front.png}
+        
+        \vspace{0.3cm}
+        \small{\textbf{Visão Frontal}}
+    \end{column}
+    
+    \begin{column}{0.5\textwidth}
+        \centering
+        \includegraphics[width=0.85\textwidth]{img/case_back.png}
+        
+        \vspace{0.3cm}
+        \small{\textbf{Visão Traseira}}
+    \end{column}
+
+\end{columns}
 
 \end{frame}
 
 
 \section{Software}
+
+
+\begin{frame}{Statechart: Energia}
+    \centering
+    \begin{tikzpicture}[
+        >=stealth, 
+        node distance=4.5cm, 
+        on grid, 
+        auto,
+        font=\small, 
+        state/.style={rectangle, rounded corners, draw, align=center, minimum size=1cm, fill=blue!5}
+    ]
+        \node[state, initial, initial text=] (estavel) {Rede\\Estável};
+        \node[state, right=of estavel] (bateria) {Modo Bateria};
+        \node[state, below=of bateria] (desmontando) {Desmontando\\Discos};
+        \node[state, left=of desmontando] (desligado) {Sistema\\Desligado};
+
+        \path[->] 
+        (estavel) edge[bend left] node[above, align=center, font=\scriptsize] {ping\_falhou / usar\_bateria} (bateria)
+        (bateria) edge[bend left] node[below, align=center, font=\scriptsize] {ping\_ok / cancelar\_timer} (estavel)
+        
+        (bateria) edge node[right, align=center, font=\scriptsize] {{[espera 3 min]} / unmount} (desmontando)
+        (desmontando) edge node[above, align=center, font=\scriptsize] {unmount\_ok \\ / poweroff} (desligado);
+    \end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Statechart: Controle do Display OLED}
+    \centering
+    \begin{tikzpicture}[
+        >=stealth, 
+        node distance=4cm, 
+        on grid, 
+        auto,
+        font=\small,
+        state/.style={rectangle, rounded corners, draw, align=center, minimum size=1cm, fill=green!5}
+    ]
+        \node[state, initial, initial text=] (info1) {Info 1\\(IP/CPU)};
+        \node[state, right=of info1] (info2) {Info 2\\(RAM/Disco)};
+        \node[state, right=of info2] (info3) {Info 3\\(Temp)};
+        
+        \path[->] 
+        (info1) edge[bend left] node[above, align=center, font=\scriptsize] {clique / prox\_tela} (info2)
+        (info2) edge[bend left] node[above, align=center, font=\scriptsize] {clique / prox\_tela} (info3)
+        (info3) edge[bend left=45] node[below, align=center, font=\scriptsize] {clique / tela\_inicial} (info1);
+    \end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Statechart: Controle da Ventoinha}
+    \centering
+    \begin{tikzpicture}[
+        >=stealth, 
+        node distance=3.6cm,
+        on grid, 
+        auto,
+        scale=0.9, transform shape,
+        font=\small,
+        state/.style={rectangle, rounded corners, draw, align=center, minimum size=1cm, fill=green!5}
+    ]
+        \node[state, initial, initial text=] (fan0) {Fan 0\%};
+        \node[state, right=of fan0] (fan25) {Fan 25\%};
+        \node[state, right=of fan25] (fan50) {Fan 50\%};
+        
+        \node[state, below=3.5cm of fan50] (fan75) {Fan 75\%};
+        \node[state, left=of fan75] (fan100) {Fan 100\%};
+
+        \path[->] 
+        (fan0) edge[bend left=20] node[above, align=center, font=\scriptsize] {{[T $\ge$ 35$^\circ$]} / set\_25} (fan25)
+        (fan25) edge[bend left=20] node[below, align=center, font=\scriptsize] {{[T $<$ 35$^\circ$]} / set\_0} (fan0)
+
+        (fan25) edge[bend left=20] node[above, align=center, font=\scriptsize] {{[T $\ge$ 40$^\circ$]} / set\_50} (fan50)
+        (fan50) edge[bend left=20] node[below, align=center, font=\scriptsize] {{[T $<$ 40$^\circ$]} / set\_25} (fan25)
+
+        (fan50) edge[bend left=20] node[right, align=center, font=\scriptsize] {{[T $\ge$ 50$^\circ$]} / set\_75} (fan75)
+        (fan75) edge[bend left=20] node[left, align=center, font=\scriptsize] {{[T $<$ 50$^\circ$]} / set\_50} (fan50)
+
+        (fan75) edge[bend left=20] node[below, align=center, font=\scriptsize] {{[T $\ge$ 60$^\circ$]} / set\_100} (fan100)
+        (fan100) edge[bend left=20] node[above, align=center, font=\scriptsize] {{[T $<$ 60$^\circ$]} / set\_75} (fan75);
+
+    \end{tikzpicture}
+\end{frame}
+
+
+\begin{frame}{Statechart: Serviços Web e Conexão}
+    \centering
+    \begin{tikzpicture}[
+        >=stealth, 
+        node distance=4cm, 
+        on grid, 
+        auto,
+        scale=0.85, transform shape,
+        font=\small,
+        state/.style={rectangle, rounded corners, draw, align=center, minimum size=1.3cm, fill=orange!5},
+        superstate/.style={rectangle, rounded corners, draw, thick, inner sep=18pt, fill=gray!5}
+    ]
+        
+        \node[state, initial, initial text=, xshift=-1.5cm] (aguardando) {Aguardando\\Conexão};
+        \node[state, right=of aguardando] (login) {Página de\\Login};
+
+        \node[state, right=5.5cm of login, yshift=1cm] (dashboard) {Dashboard};
+        \node[state, below=3cm of dashboard] (transferindo) {Transferindo\\(Up/Down)};
+
+        \begin{scope}[on background layer]
+            \node[superstate, fit=(dashboard) (transferindo)] (sessao) {};
+        \end{scope}
+        
+        \node[circle, fill=black, inner sep=1.5pt, left=1.7cm of dashboard] (init_sessao) {};
+
+        
+        \path[->] 
+        (aguardando) edge node[above, align=center, font=\scriptsize] {conectar \\ / abrir\_ui} (login)
+        (login) edge node[above, align=center, font=\scriptsize] {{[login OK]} \\ / abrir\_sessao} (sessao.west)
+        (sessao.south) edge[bend left=30] node[below, align=center, font=\scriptsize] {logout \\ / encerrar} (login.south);
+
+        \path[->]
+        (init_sessao) edge (dashboard)
+        (dashboard) edge[bend left] node[right, align=center, font=\scriptsize] {pedir\_arq \\ / iniciar} (transferindo)
+        (transferindo) edge[bend left] node[left, align=center, font=\scriptsize] {concluido \\ / att\_tela} (dashboard);
+
+    \end{tikzpicture}
+\end{frame}
+
+
 
 \begin{frame}
 \frametitle{Proposta do SO}
@@ -281,20 +472,6 @@ E se construirmos um sistema NAS com um Raspberry Pi 5?
 \end{frame}
 
 \begin{frame}
-\frametitle{Interação com o usuário}
-
-\begin{itemize}
-    \item Wireguard + SSH.
-    \item Interface gráfica.
-    \item OLED da ventoinha controlada por scripts em Python.
-    \item DuckDNS para IP externo.
-    \item Sistema multiuser com \texttt{Podman} para rodar serviços.
-\end{itemize}
-
-\end{frame}
-
-
-\begin{frame}
 \frametitle{Interface gráfica}
 
 \begin{center}
@@ -306,46 +483,42 @@ E se construirmos um sistema NAS com um Raspberry Pi 5?
 
 \section{Resultados}
 
+
+\begin{frame}
+\frametitle{Resumo do Sistema}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{table}
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Categoria} & \textbf{Setup} \\
+        \midrule
+        \textbf{Hardware} & RPi 5 (ARM Cortex-A76) \\
+        \textbf{SO} & Gentoo Linux (aarch64) \\
+        \textbf{Kernel} & v6.12.47 (16k pages) \\
+        \textbf{Init} & OpenRC \\
+        \textbf{Armazenamento} & ext4 (Nativo) e NTFS \\
+        \textbf{Rede e VPN} & Wi-Fi + WireGuard \\
+        \textbf{Serviços} & Podman \\
+        \textbf{Integração HAT} & rockpi-sata \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\end{frame}
+
 \begin{frame}
 \frametitle{Resultados}
 
 \begin{itemize}
-    \item Conexão entre redes diferentes bem sucedida.
     \item Sistema multiusuário funcionando.
     \item Consumo médio de $60$ Mb de RAM em IDLE e $120$ Mb durante transferência de arquivos.
     \item Média de $4$ W de consumo em IDLE e $7$ W durante transferência de arquivos.
     \item Média de $35^\circ$ C de temperatura da CPU.
-    \item Possível levantar diversos serviços.
     \item No-break responsivo e funcional.
 \end{itemize}
 
-\end{frame}
-
-\begin{frame}
-\frametitle{Fastfetch}
-
-\begin{center}
-\includegraphics[width=\textwidth]{img/fastfetch.png}
-\end{center}
-
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Consumo de energia}
-
-\begin{verbatim}
-localhost ~ # vcgencmd pmic_read_adc 
-...
-  VDD_CORE_A current(7)=0.51794000A 
-...
-  VDD_CORE_V volt(15)=0.75052430V 
-...
-     EXT5V_V volt(24)=4.94058000V 
-...
-localhost ~ # vcgencmd get_throttled 
-throttled=0x0 
-localhost ~ # 
-\end{verbatim}
 \end{frame}
 
 
